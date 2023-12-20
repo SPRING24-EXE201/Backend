@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 # Create your models here.
@@ -9,6 +10,7 @@ class AdministrativeRegion(models.Model):
     code_name = models.CharField(max_length=100)
     code_name_en = models.CharField(max_length=100)
 
+
 class AdministrativeUnit(models.Model):
     name = models.CharField(max_length=100)
     full_name = models.CharField(max_length=100)
@@ -17,6 +19,7 @@ class AdministrativeUnit(models.Model):
     short_name_en = models.CharField(max_length=100)
     code_name = models.CharField(max_length=100)
     code_name_en = models.CharField(max_length=100)
+
 
 class Province(models.Model):
     administrativeRegionId = models.ForeignKey(AdministrativeRegion, on_delete=models.CASCADE)
@@ -27,6 +30,7 @@ class Province(models.Model):
     full_name_en = models.CharField(max_length=100)
     code_name = models.CharField(max_length=100)
 
+
 class District(models.Model):
     provinceId = models.ForeignKey(Province, on_delete=models.CASCADE)
     administrativeUnitId = models.ForeignKey(AdministrativeUnit, on_delete=models.CASCADE)
@@ -35,6 +39,7 @@ class District(models.Model):
     full_name = models.CharField(max_length=100)
     full_name_en = models.CharField(max_length=100)
     code_name = models.CharField(max_length=100)
+
 
 class Ward(models.Model):
     districtId = models.ForeignKey(District, on_delete=models.CASCADE)
@@ -45,9 +50,11 @@ class Ward(models.Model):
     full_name_en = models.CharField(max_length=100)
     code_name = models.CharField(max_length=100)
 
+
 class Location(models.Model):
     wardId = models.ForeignKey(Ward, on_delete=models.CASCADE)
     location_detail = models.CharField(max_length=100)
+
 
 # Cabinet
 class Controller(models.Model):
@@ -57,6 +64,7 @@ class Controller(models.Model):
     topic = models.CharField(max_length=100)
     status = models.CharField(max_length=100)
 
+
 class CabinetType(models.Model):
     type = models.CharField(max_length=100)
     type_name = models.CharField(max_length=100)
@@ -64,6 +72,7 @@ class CabinetType(models.Model):
     status = models.CharField(max_length=100)
     image_link = models.CharField(max_length=100)
     cost_per_unit = models.FloatField()
+
 
 class CostVersion(models.Model):
     version = models.CharField(max_length=100)
@@ -73,12 +82,14 @@ class CostVersion(models.Model):
     unit = models.CharField(max_length=100)
     status = models.CharField(max_length=100)
 
+
 class Campaign(models.Model):
     costVersionId = models.ForeignKey(CostVersion, on_delete=models.CASCADE)
-    time_start = models.DateTimeField()
-    time_end = models.DateTimeField()
+    time_start = models.DateTimeField(null=True, blank=True, default=None)
+    time_end = models.DateTimeField(null=True, blank=True,default=None)
     status = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
+
 
 class Cabinet(models.Model):
     controllerId = models.ForeignKey(Controller, on_delete=models.CASCADE)
@@ -95,12 +106,14 @@ class Cabinet(models.Model):
     state = models.CharField(max_length=100)
     virtual_cabinet_id = models.CharField(max_length=100)
 
+
 class CampaignCabinet(models.Model):
     campaignId = models.ForeignKey(Campaign, on_delete=models.CASCADE)
     cabinetId = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
     campaign_id = models.CharField(max_length=100)
     cabinet_id = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
+
 
 class Cell(models.Model):
     cabinetId = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
@@ -114,11 +127,13 @@ class Cell(models.Model):
     height = models.CharField(max_length=100)
     width = models.CharField(max_length=100)
 
+
 class CellLog(models.Model):
     cellId = models.ForeignKey(Cell, on_delete=models.CASCADE)
     user_id = models.CharField(max_length=100)
     status = models.CharField(max_length=100)
-    time = models.DateTimeField()
+    time = models.DateTimeField(null=True, blank=True, default=timezone.now)
+
 
 class User(models.Model):
     username = models.CharField(max_length=100)
@@ -130,21 +145,20 @@ class User(models.Model):
     status = models.CharField(max_length=100)
     image_link = models.CharField(max_length=100)
 
+
 class Order(models.Model):
     orderId = models.CharField(max_length=100)
     total_amount = models.FloatField()
     payment_method = models.CharField(max_length=100)
-    order_date = models.DateTimeField()
+    order_date = models.DateTimeField(null=True, blank=True, default=timezone.now)
     status = models.CharField(max_length=100)
+
 
 class OrderDetail(models.Model):
     cellId = models.ForeignKey(Cell, on_delete=models.CASCADE)
     userId = models.ForeignKey(User, on_delete=models.CASCADE)
     orderId = models.ForeignKey(Order, on_delete=models.CASCADE)
     campaign_id = models.CharField(max_length=100)
-    time_start = models.DateTimeField()
-    time_end = models.DateTimeField()
+    time_start = models.DateTimeField(null=True, blank=True,default=None)
+    time_end = models.DateTimeField(null=True, blank=True,default=None)
     sub_total = models.FloatField()
-
-
-
