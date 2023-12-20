@@ -76,10 +76,11 @@ WSGI_APPLICATION = 'exe201_backend.wsgi.application'
 
 DATABASES = {
    'default': {
-    'ENGINE': 'django.db.backends.postgresql',
-    'NAME': 'iBox',
-    'USER': 'postgres',
-    'PASSWORD': '12345',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ibox_dev',
+        'USER': 'sa',
+        'PASSWORD': 'exesp2024',
+        'HOST': '54.206.208.99'
 }
 }
 
