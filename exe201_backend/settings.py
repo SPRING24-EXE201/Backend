@@ -78,7 +78,7 @@ DATABASES = {
    'default': {
     'ENGINE': 'django.db.backends.postgresql',
     'NAME': 'iBox',
-    'USER': 'nhattan',
+    'USER': 'postgres',
     'PASSWORD': '12345',
 }
 }
