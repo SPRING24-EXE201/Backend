@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
+
 # Create your models here.
 # Location
 class AdministrativeRegion(models.Model):
@@ -144,7 +145,6 @@ class Order(models.Model):
     payment_method = models.PositiveSmallIntegerField()
     order_date = models.DateTimeField(null=True, blank=True, default=timezone.now)
     status = models.BooleanField()
-
 
 
 class OrderDetail(models.Model):
