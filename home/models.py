@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 
 # Create your models here.
@@ -127,16 +128,23 @@ class CellLog(models.Model):
     time = models.DateTimeField(null=True, blank=True, default=timezone.now)
 
 
-class User(models.Model):
-    username = models.CharField(max_length=100)
-    password = models.CharField(max_length=100)
-    fullname = models.CharField(max_length=100)
-    email = models.CharField(max_length=100)
+class User(AbstractBaseUser, PermissionsMixin):
+    ADMIN_ROLE = 1
+    USER_ROLE = 2
+    ROLE_CHOICES = (
+        (ADMIN_ROLE,'ADMIN'),
+        (USER_ROLE,'USER')
+    )
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=100, unique=True)
+    USERNAME_FIELD = 'username'
+    full_name = models.CharField(max_length=200, null=True)
     phone_number = models.CharField(max_length=100)
     address = models.CharField(max_length=100)
     status = models.PositiveSmallIntegerField()
     image_link = models.CharField(max_length=100)
-    refresh_token = models.CharField(max_length=200)
+    refresh_token = models.CharField(max_length=200, null=True)
+    role = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, default=USER_ROLE)
 
 
 class Order(models.Model):
