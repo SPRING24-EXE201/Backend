@@ -35,7 +35,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'home'
+
+    'home',
 ]
 
 MIDDLEWARE = [
@@ -81,6 +82,18 @@ DATABASES = {
         'HOST': '54.206.208.99'
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'ibox_dev',
+#         'USER': 'tranduy',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

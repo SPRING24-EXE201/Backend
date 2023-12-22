@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from .managers import CustomUserManager
 
 
 # Create your models here.
@@ -135,9 +136,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         (ADMIN_ROLE,'ADMIN'),
         (USER_ROLE,'USER')
     )
+
+    objects = CustomUserManager()
+
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=100, unique=True)
     USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email', 'status']
     full_name = models.CharField(max_length=200, null=True)
     phone_number = models.CharField(max_length=100)
     address = models.CharField(max_length=100)
