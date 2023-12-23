@@ -83,6 +83,9 @@ class CostVersion(models.Model):
     unit = models.CharField(max_length=100)
     status = models.BooleanField()
 
+    def __str__(self):
+        return f"{self.version} - {self.cost}"
+
 
 class Campaign(models.Model):
     cost_version_id = models.ForeignKey(CostVersion, on_delete=models.CASCADE)
