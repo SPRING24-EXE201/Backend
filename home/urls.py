@@ -7,4 +7,6 @@ urlpatterns = [
     path('update/', views.updateData),
     path('delete/', views.deleteData),
     path('create/', views.createData),
+    path('administrative-unit/', views.get_administrative_unit),
+    path('province/', views.get_province)
 ]

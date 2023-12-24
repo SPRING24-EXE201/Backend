@@ -49,3 +49,4 @@ typing_extensions==4.9.0
 urllib3==2.1.0
 virtualenv==20.25.0
 zipp==3.17.0
+django-stubs==4.2.7
