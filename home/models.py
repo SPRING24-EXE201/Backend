@@ -94,6 +94,9 @@ class Campaign(models.Model):
     status = models.BooleanField()
     description = models.CharField(max_length=100)
 
+    def __str__(self):
+        return f"{self.cost_version_id} - {self.status}"
+
 
 class Cabinet(models.Model):
     controller_id = models.ForeignKey(Controller, on_delete=models.CASCADE)
@@ -112,6 +115,9 @@ class CampaignCabinet(models.Model):
     campaign_id = models.ForeignKey(Campaign, on_delete=models.CASCADE)
     cabinet_id = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
     description = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.campaign_id} - {self.cabinet_id}"
 
 
 class Cell(models.Model):
