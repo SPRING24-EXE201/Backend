@@ -35,7 +35,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'home'
+
+    'home',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -72,15 +74,28 @@ WSGI_APPLICATION = 'exe201_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'ibox_dev',
+#         'USER': 'sa',
+#         'PASSWORD': 'exesp2024',
+#         'HOST': '54.206.208.99'
+#     }
+# }
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'ibox_dev',
-        'USER': 'sa',
-        'PASSWORD': 'exesp2024',
-        'HOST': '54.206.208.99'
+        'USER': 'postgres',
+        'PASSWORD': '12345',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

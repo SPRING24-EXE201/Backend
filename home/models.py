@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import AbstractUser
 
 
 # Create your models here.
@@ -82,6 +83,9 @@ class CostVersion(models.Model):
     unit = models.CharField(max_length=100)
     status = models.BooleanField()
 
+    def __str__(self):
+        return f"{self.version} - {self.cost}"
+
 
 class Campaign(models.Model):
     cost_version_id = models.ForeignKey(CostVersion, on_delete=models.CASCADE)
@@ -89,6 +93,9 @@ class Campaign(models.Model):
     time_end = models.DateTimeField(null=True, blank=True, default=None)
     status = models.BooleanField()
     description = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.cost_version_id} - {self.status}"
 
 
 class Cabinet(models.Model):
@@ -109,6 +116,9 @@ class CampaignCabinet(models.Model):
     cabinet_id = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
     description = models.CharField(max_length=100)
 
+    def __str__(self):
+        return f"{self.campaign_id} - {self.cabinet_id}"
+
 
 class Cell(models.Model):
     cabinet_id = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
@@ -128,23 +138,15 @@ class CellLog(models.Model):
     time = models.DateTimeField(null=True, blank=True, default=timezone.now)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
-    ADMIN_ROLE = 1
-    USER_ROLE = 2
-    ROLE_CHOICES = (
-        (ADMIN_ROLE,'ADMIN'),
-        (USER_ROLE,'USER')
-    )
+class User(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=100, unique=True)
-    USERNAME_FIELD = 'username'
-    full_name = models.CharField(max_length=200, null=True)
+    full_name = models.CharField(max_length=200, null=True, blank=True)
     phone_number = models.CharField(max_length=100)
-    address = models.CharField(max_length=100)
-    status = models.PositiveSmallIntegerField()
-    image_link = models.CharField(max_length=100)
+    address = models.CharField(max_length=100, null=True, blank=True)
+    image_link = models.CharField(max_length=100, null=True, blank=True)
     refresh_token = models.CharField(max_length=200, null=True)
-    role = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, default=USER_ROLE)
+
 
 
 class Order(models.Model):
