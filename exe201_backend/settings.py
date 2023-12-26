@@ -36,7 +36,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'home',
+    'user',
+    'location',
+    'order',
+    'cabinet',
+
     'rest_framework',
 ]
 
@@ -135,4 +139,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Change user model
-AUTH_USER_MODEL = "home.User"
+AUTH_USER_MODEL = "user.User"
