@@ -73,6 +73,9 @@ class CabinetType(models.Model):
     image_link = models.CharField(max_length=100)
     cost_per_unit = models.FloatField()
 
+    def __str__(self):
+        return f"{self.type}"
+
 
 class CostVersion(models.Model):
     version = models.CharField(max_length=100)
@@ -108,6 +111,9 @@ class Cabinet(models.Model):
     status = models.BooleanField()
     image_link = models.CharField(max_length=100)
     virtual_cabinet_id = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.controller_id} - {self.cabinetType_id}"
 
 
 class CampaignCabinet(models.Model):

@@ -8,4 +8,7 @@ urlpatterns = [
     path('location/', views.get_location),
     path('ward/', views.get_ward),
     path('district/', views.get_district),
+    path('cabinet-type/', views.get_cabinet_type),
+    path('controller/', views.get_controller),
+    path('cabinet/', views.get_cabinet),
 ]

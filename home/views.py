@@ -2,7 +2,8 @@ from django.shortcuts import render
 from home.models import User, CostVersion, Campaign, CampaignCabinet, District, Location, Ward
 from rest_framework.response import Response
 from rest_framework.decorators import permission_classes, api_view
-from home.serializer import CostVersionSerializer, CampaignSerializer, CampaignCabinetSerializer, DistrictSerializer, LocationSerializer, WardSerializer
+from home.serializer import CostVersionSerializer, CampaignSerializer, CampaignCabinetSerializer, DistrictSerializer, \
+    LocationSerializer, WardSerializer
 
 
 @api_view(['GET'])
@@ -57,6 +58,7 @@ def get_campaign_cabinet(request):
         'data': data,
     })
 
+
 @api_view(['GET'])
 def get_district(request):
     district_list = []
@@ -64,13 +66,14 @@ def get_district(request):
         district_list = District.objects.all()
     except DistrictSerializer.DoesNotExist:
         pass
-    
+
     data = DistrictSerializer(district_list, many=True).data
 
     return Response({
         'success': True,
         'data': data,
     })
+
 
 @api_view(['GET'])
 def get_ward(request):
@@ -79,7 +82,7 @@ def get_ward(request):
         ward_list = Ward.objects.all()
     except WardSerializer.DoesNotExist:
         pass
-    
+
     data = WardSerializer(ward_list, many=True).data
 
     return Response({
@@ -95,8 +98,56 @@ def get_location(request):
         location_list = Location.objects.all()
     except LocationSerializer.DoesNotExist:
         pass
-    
+
     data = LocationSerializer(location_list, many=True).data
+
+    return Response({
+        'success': True,
+        'data': data,
+    })
+
+
+@api_view(['GET'])
+def get_cabinet_type(request):
+    cabinet_type_list = []
+    try:
+        cabinet_type_list = CabinetType.objects.all()
+    except CabinetTypeSerializer.DoesNotExist:
+        pass
+
+    data = CabinetTypeSerializer(cabinet_type_list, many=True).data
+
+    return Response({
+        'success': True,
+        'data': data,
+    })
+
+
+@api_view(['GET'])
+def get_controller(request):
+    controller_list = []
+    try:
+        controller_list = Controller.objects.all()
+    except ControllerSerializer.DoesNotExist:
+        pass
+
+    data = ControllerSerializer(controller_list, many=True).data
+
+    return Response({
+        'success': True,
+        'data': data,
+    })
+
+
+@api_view(['GET'])
+def get_cabinet(request):
+    cabinet_list = []
+    try:
+        cabinet_list = Cabinet.objects.all()
+    except CabinetSerializer.DoesNotExist:
+        pass
+
+    data = CabinetSerializer(cabinet_list, many=True).data
 
     return Response({
         'success': True,
