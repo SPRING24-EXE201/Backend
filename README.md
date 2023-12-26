@@ -1,5 +1,9 @@
 # Backend - Django
 
+## Structure
+    https://famous-cress-fcf.notion.site/BACK-END-37ad249ad7a9416fae82b7268bf0b38b
+
+
 ## Installation
 ### Activate virtual environment
     source venv/bin/activate (MacOS/Linux)
