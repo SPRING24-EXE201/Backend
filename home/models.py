@@ -52,7 +52,6 @@ class Ward(models.Model):
     full_name_en = models.CharField(max_length=100)
     code_name = models.CharField(max_length=100)
 
-
 class Location(models.Model):
     ward_id = models.ForeignKey(Ward, on_delete=models.CASCADE)
     location_detail = models.CharField(max_length=100)
