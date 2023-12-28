@@ -1,0 +1,25 @@
+Metadata-Version: 2.0
+Name: django-postgres-extensions
+Version: 0.9.3
+Summary: Extra features for django.contrib.postgres
+Home-page: https://github.com/primal100/django_postgres_extensions
+Author: Paul Martin
+Author-email: greatestloginnameever@gmail.com
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Database
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+
+Django Postgres Extensions adds a lot of functionality to Django.contrib.postgres, specifically in relation to ArrayField, HStoreField and JSONField, including much better form fields for dealing with these field types. The app also includes an Array Many To Many Field, so you can store the relationship in an array column instead of requiring an extra database table.
+
+Check out http://django-postgres-extensions.readthedocs.io/en/latest/ to get started.
+
