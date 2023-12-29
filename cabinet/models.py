@@ -21,6 +21,9 @@ class CabinetType(models.Model):
     image_link = models.CharField(max_length=100)
     cost_per_unit = models.FloatField()
 
+    def __str__(self):
+        return f"{self.type} - {self.description}"
+
 
 class CostVersion(models.Model):
     version = models.CharField(max_length=100)
