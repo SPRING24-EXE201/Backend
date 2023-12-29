@@ -36,24 +36,8 @@ def update_order(request):
 
     return Response({'message': 'Order updated successfully!'})
 
-# @api_view(['DELETE'])
-# def delete_order(request):
-#     # Order.objects.filter(order_id=request.data.get('order_id')).delete(
-        
-#     # )
-#     Order.objects.all().delete()
-
-#     return Response({'message': 'Order deleted successfully!'})
-
 @api_view(['DELETE'])
 def delete_order(request):
-    order_id = request.data.get('order_id')
-    if order_id is not None:
-        try:
-            order = Order.objects.get(order_id=order_id)
-            order.delete()
-            return Response({'message': 'Order deleted successfully!'})
-        except Order.DoesNotExist:
-            return Response({'message': 'Order not found'}, status=404)
-    else:
-        return Response({'message': 'No order_id provided'}, status=400)
+    Order.objects.all().delete()
+
+    return Response({'message': 'Order deleted successfully!'})
