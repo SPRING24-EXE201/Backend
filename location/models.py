@@ -1,10 +1,14 @@
 from django.db import models
 
+
 class AdministrativeRegion(models.Model):
     name = models.CharField(max_length=100)
     name_en = models.CharField(max_length=100)
     code_name = models.CharField(max_length=100)
     code_name_en = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
 
 
 class AdministrativeUnit(models.Model):
@@ -16,6 +20,10 @@ class AdministrativeUnit(models.Model):
     code_name = models.CharField(max_length=100)
     code_name_en = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.full_name
+
+
 class Province(models.Model):
     administrative_region_id = models.ForeignKey(AdministrativeRegion, on_delete=models.CASCADE)
     administrative_unit_id = models.ForeignKey(AdministrativeUnit, on_delete=models.CASCADE)
@@ -24,6 +32,9 @@ class Province(models.Model):
     full_name = models.CharField(max_length=100)
     full_name_en = models.CharField(max_length=100)
     code_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.full_name
 
 
 class District(models.Model):
@@ -35,6 +46,9 @@ class District(models.Model):
     full_name_en = models.CharField(max_length=100)
     code_name = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.full_name
+
 
 class Ward(models.Model):
     district_id = models.ForeignKey(District, on_delete=models.CASCADE)
@@ -44,6 +58,9 @@ class Ward(models.Model):
     full_name = models.CharField(max_length=100)
     full_name_en = models.CharField(max_length=100)
     code_name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.full_name
 
 
 class Location(models.Model):
