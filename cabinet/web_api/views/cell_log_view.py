@@ -10,13 +10,13 @@ def get_cell_log(request):
     """
     Get all cell log
     """
-    cell = []
+    cell_log = []
     try:
-        cell = CellLog.objects.all().filter(status=True)
+        cell_log = CellLog.objects.all()
     except CellLog.DoesNotExist:
         pass
 
-    data = CellLogSerializer(cell, many=True).data
+    data = CellLogSerializer(cell_log, many=True).data
 
     return Response({
         'success': True,
