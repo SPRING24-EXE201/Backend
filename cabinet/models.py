@@ -13,6 +13,9 @@ class Controller(models.Model):
     topic = models.CharField(max_length=100)
     status = models.BooleanField()
 
+    def __str__(self):
+        return self.name
+
 
 class CabinetType(models.Model):
     type = models.CharField(max_length=100)
@@ -20,6 +23,9 @@ class CabinetType(models.Model):
     status = models.BooleanField()
     image_link = models.CharField(max_length=100)
     cost_per_unit = models.FloatField()
+
+    def __str__(self):
+        return self.type
 
 
 class CostVersion(models.Model):
@@ -77,9 +83,15 @@ class Cell(models.Model):
     height = models.FloatField()
     depth = models.FloatField()
 
+    def __str__(self):
+        return f'{self.cell_index} - Cabinet {self.cabinet_id}'
+
 
 class CellLog(models.Model):
     cell_id = models.ForeignKey(Cell, on_delete=models.CASCADE)
     user_id = models.IntegerField()
     status = models.BooleanField()
     time = models.DateTimeField(null=True, blank=True, default=timezone.now)
+
+    def __str__(self):
+        return f'{self.user_id} - {self.cell_id} - {self.status} at {self.time}'
