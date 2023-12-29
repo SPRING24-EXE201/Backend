@@ -7,6 +7,18 @@ from location.web_api.serializers.administrative_region_serializer import Admini
 
 @api_view(['GET'])
 def get_administrative_region(request):
-    items = AdministrativeRegion.objects.all()
-    serializer = AdministrativeRegionSerializer(items, many=True)
-    return Response(serializer.data)
+    """
+        Get all administrative_region
+        """
+    administrative_region = []
+    try:
+        administrative_region = AdministrativeRegion.objects.all()
+    except AdministrativeRegion.DoesNotExist:
+        pass
+
+    data = AdministrativeRegionSerializer(administrative_region, many=True).data
+
+    return Response({
+        'success': True,
+        'data': data,
+    })

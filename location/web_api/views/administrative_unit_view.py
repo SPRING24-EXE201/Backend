@@ -7,6 +7,18 @@ from location.web_api.serializers.administrative_unit_serializer import Administ
 
 @api_view(['GET'])
 def get_administrative_unit(request):
-    items = AdministrativeUnit.objects.all()
-    serializer = AdministrativeUnitSerializer(items, many=True)
-    return Response(serializer.data)
+    """
+        Get all administrative_unit
+        """
+    administrative_unit = []
+    try:
+        administrative_unit = AdministrativeUnit.objects.all()
+    except AdministrativeUnit.DoesNotExist:
+        pass
+
+    data = AdministrativeUnitSerializer(administrative_unit, many=True).data
+
+    return Response({
+        'success': True,
+        'data': data,
+    })
