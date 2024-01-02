@@ -19,8 +19,8 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/cost-version/', include('cabinet.web_api.urls.cost_version_url')),
-    path('api/cabinet/', include('cabinet.web_api.urls.cabinet_url')),
-    path('api/cabinet-type/', include('cabinet.web_api.urls.cabinet_type_url')),
-    path('api/controller/', include('cabinet.web_api.urls.controller_url')),
+    path('api/v1/cost-version/', include('cabinet.root_urls')),
+    path('api/v1/cabinet/', include('cabinet.root_urls')),
+    path('api/v1/cabinet-type/', include('cabinet.root_urls')),
+    path('api/v1/controller/', include('cabinet.root_urls')),
 ]
