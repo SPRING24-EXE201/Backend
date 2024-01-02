@@ -6,13 +6,13 @@ from cabinet.web_api.serializers.campaign_cabinet_serializer import CampaignCabi
 
 
 @api_view(['GET'])
-def get_campaign_cabinet(request):
+def get_campaign_cabinet(self):
     """
     Get all campaign cabinet
     """
     campaign_cabinet = []
     try:
-        campaign_cabinet = CampaignCabinet.objects.all().filter(status=True)
+        campaign_cabinet = CampaignCabinet.objects.all()
     except CampaignCabinet.DoesNotExist:
         pass
 

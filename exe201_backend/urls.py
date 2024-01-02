@@ -19,7 +19,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/cost-version/', include('cabinet.web_api.urls.cost_version_url')),
-    path('api/campaign/', include('cabinet.web_api.urls.campaign_url')),
-    path('api/campaign-cabinet/', include('cabinet.web_api.urls.campaign_cabinet_url')),
+    path('api/v1/cost-version/', include('cabinet.root_urls')),
+    path('api/v1/campaign/', include('cabinet.root_urls')),
+    path('api/v1/campaign-cabinet/', include('cabinet.root_urls')),
 ]
