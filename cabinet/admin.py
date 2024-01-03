@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from cabinet.models import CostVersion, Cabinet, CabinetType, Controller
-
+from cabinet.models import CostVersion, Cell, Cabinet, CabinetType, Controller
 
 # Register your models here.
 @admin.register(CostVersion)
@@ -24,3 +23,8 @@ class CabinetTypeAdmin(admin.ModelAdmin):
 @admin.register(Controller)
 class ControllerAdmin(admin.ModelAdmin):
     list_display = ('location_id', 'name', 'kafka_id', 'topic', 'status')
+
+
+@admin.register(Cell)
+class CellAdmin(admin.ModelAdmin):
+    list_display = ('cell_index', 'cabinet_id', 'width', 'height', 'depth')
