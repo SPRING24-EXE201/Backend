@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from cabinet.models import CostVersion, Campaign, CampaignCabinet
-
+from cabinet.models import CostVersion, Cell, Cabinet, CabinetType, Controller
 
 # Register your models here.
 @admin.register(CostVersion)
@@ -9,11 +8,23 @@ class CostVersionAdmin(admin.ModelAdmin):
     list_display = ('version', 'cost', 'from_hour', 'to_hour')
 
 
-@admin.register(Campaign)
-class CampaignAdmin(admin.ModelAdmin):
-    list_display = ('cost_version_id', 'time_start', 'time_end', 'status', 'description')
+@admin.register(Cabinet)
+class CabinetAdmin(admin.ModelAdmin):
+    list_display = (
+        'controller_id', 'cabinetType_id', 'description', 'start_using_date', 'height', 'width', 'depth', 'status',
+        'image_link', 'virtual_cabinet_id')
 
 
-@admin.register(CampaignCabinet)
-class CampaignCabinetAdmin(admin.ModelAdmin):
-    list_display = ('campaign_id', 'cabinet_id', 'description')
+@admin.register(CabinetType)
+class CabinetTypeAdmin(admin.ModelAdmin):
+    list_display = ('type', 'description', 'status', 'image_link', 'cost_per_unit')
+
+
+@admin.register(Controller)
+class ControllerAdmin(admin.ModelAdmin):
+    list_display = ('location_id', 'name', 'kafka_id', 'topic', 'status')
+
+
+@admin.register(Cell)
+class CellAdmin(admin.ModelAdmin):
+    list_display = ('cell_index', 'cabinet_id', 'width', 'height', 'depth')
