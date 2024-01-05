@@ -6,7 +6,7 @@ from order.web_api.serializers.order_detail_serializer import OrderDetailSeriali
 
 
 @api_view(['GET'])
-def get_cell(request):
+def get_order_detail(request):
     """
     Get all order detail
     """

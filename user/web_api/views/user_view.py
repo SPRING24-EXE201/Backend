@@ -6,7 +6,7 @@ from user.web_api.serializers.user_serializer import UserSerializer
 
 
 @api_view(['GET'])
-def get_cell(request):
+def get_user(request):
     """
     Get all user
     """
