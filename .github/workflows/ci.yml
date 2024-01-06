@@ -36,4 +36,6 @@ jobs:
           git fetch --all
           git branch -d ${{ github.event.pull_request.head.ref }}
           git push origin --delete ${{ github.event.pull_request.head.ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
