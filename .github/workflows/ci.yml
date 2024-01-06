@@ -22,20 +22,4 @@ jobs:
       run: docker build -t baominh/exe201_backend .
     - name: Push to Dockerhub
       run: docker push baominh/exe201_backend:latest
-  
-  delete-branch:
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Delete branch
-        run: |
-          git fetch --all
-          git branch -d ${{ github.event.pull_request.head.ref }}
-          git push origin --delete ${{ github.event.pull_request.head.ref }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
