@@ -24,3 +24,16 @@ jobs:
         run:
           sudo docker run -d -p 80:8000 --name exe201_backend-container
           baominh/exe201_backend
+          
+  delete-branch:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Delete branch
+        run: |
+          git fetch --all
+          git branch -d ${{ github.event.pull_request.head.ref }}
+          git push origin --delete ${{ github.event.pull_request.head.ref }}
