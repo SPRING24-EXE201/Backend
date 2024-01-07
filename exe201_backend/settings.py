@@ -23,10 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-=dq6k5kgd78rcfg3zm-6+2)ba9=713*bk&qrlhejkt$%(58w(6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
-    'ec2-13-239-138-215.ap-southeast-2.compute.amazonaws.com'
+    'ec2-13-239-138-215.ap-southeast-2.compute.amazonaws.com',
+    'localhost',
 ]
 
 # Application definition
@@ -45,7 +46,21 @@ INSTALLED_APPS = [
     'cabinet',
 
     'rest_framework',
+    'drf_spectacular',
 ]
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'EXE201 List API',
+    'DESCRIPTION': 'API documentation for our app',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
