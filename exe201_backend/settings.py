@@ -10,8 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+from datetime import timedelta
+from pathlib import Path
+
+from dotenv import load_dotenv
+import os
+
+# Load biến môi trường từ tệp develop.env
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,12 +30,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-=dq6k5kgd78rcfg3zm-6+2)ba9=713*bk&qrlhejkt$%(58w(6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', True)
 
-ALLOWED_HOSTS = [
-    'ec2-13-239-138-215.ap-southeast-2.compute.amazonaws.com',
-    'localhost',
-]
+ALLOWED_HOSTS = ['*']
 
 # Application definition
  
@@ -47,7 +51,29 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'drf_spectacular',
+    'corsheaders',
 ]
+
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_METHODS = (
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+)
+
+CORS_ALLOW_HEADERS = (
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+)
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'EXE201 List API',
@@ -96,29 +122,32 @@ WSGI_APPLICATION = 'exe201_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ibox_dev',
-        'USER': 'sa',
-        'PASSWORD': 'exesp2024',
-        'HOST': '54.206.208.99'
+        'NAME': os.environ.get("DB_NAME", "ibox_dev"),
+        'PASSWORD': os.environ.get("DB_PASSWORD", ""),
+        'USER': os.environ.get("DB_USER", "tranduy"),
+        'HOST': os.environ.get("DB_HOST", "localhost"),
+        'PORT': os.environ.get("DB_PORT", "5432"),
     }
 }
 
-#
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'ibox_dev',
-#         'USER': 'postgres',
-#         'PASSWORD': '12345',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
 
+CLIENT_URL = os.environ.get("CLIENT_URL", "http://localhost:3001")
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3001",
+    "http://localhost:8000",
+    CLIENT_URL,
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3001",
+    "http://localhost:8000",
+    CLIENT_URL,
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
