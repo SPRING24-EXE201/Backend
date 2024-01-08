@@ -1,4 +1,4 @@
-# Backend - Django.
+# Backend - Django
 
 ## Structure
     https://famous-cress-fcf.notion.site/BACK-END-37ad249ad7a9416fae82b7268bf0b38b
