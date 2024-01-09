@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 
 from order.models import Order
 from order.web_api.serializers.order_serializer import OrderSerializer
@@ -10,9 +11,25 @@ from order.web_api.serializers.order_serializer import OrderSerializer
 def get_orders(self):
     items = Order.objects.all()
     print(items)
-    orders = Order.objects.filter(deleted=False)
+    orders = Order.objects.filter(status=True)
     serializer = OrderSerializer(orders, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def get_order_by_id(request, order_id):
+    """
+    Get an order by its id
+    """
+    try:
+        order = Order.objects.get(order_id=order_id)
+
+        if order.status is not True:
+            raise NotFound("Order Is Not Active")
+
+        serializer = OrderSerializer(order)
+        return Response(serializer.data)
+    except Order.DoesNotExist:
+        raise NotFound("Order Not Found")
 
 
 @api_view(['POST'])
@@ -43,16 +60,13 @@ def create_order(request):
     return Response({'message': 'Order created successfully!'})
 
 @api_view(['PUT'])
-def update_order(request):
-    order_id = request.data.get('order_id')
+def update_order_by_order_id(request, order_id):
     total_amount = request.data.get('total_amount')
     payment_method = request.data.get('payment_method')
     order_date = request.data.get('order_date')
     status = request.data.get('status')
 
     # Check null values
-    if order_id is None:
-        return Response({'message': 'Invalid input. Please provide the order_id.'}, status=400)
     if total_amount is None:
         return Response({'message': 'Invalid input. Please provide the total_amount.'}, status=400)
     if payment_method is None:
@@ -88,10 +102,10 @@ def delete_order_by_order_id(request, order_id):
         if order.status is None:
             return Response({'error': 'Order status is None, cannot delete'}, status=400)
         elif order.status:
-            order.deleted = True
+            order.status = False 
             order.save()
             return Response({'message': 'Order deleted successfully!'}, status=200)
         else:
-            return Response({'error': 'Order cannot be deleted because its status is False'}, status=400)
+            return Response({'error': 'Order cannot be deleted because its status is already False'}, status=400)
     except Order.DoesNotExist:
         return Response({'error': 'Order not found'}, status=404)

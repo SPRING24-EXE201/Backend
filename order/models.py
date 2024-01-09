@@ -12,8 +12,9 @@ class Order(models.Model):
     payment_method = models.PositiveSmallIntegerField()
     order_date = models.DateTimeField(null=True, blank=True, default=timezone.now)
     status = models.BooleanField()
-    deleted = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.order_id
 
 class OrderDetail(models.Model):
     cell_id = models.ForeignKey(Cell, on_delete=models.CASCADE)
