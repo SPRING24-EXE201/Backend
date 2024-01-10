@@ -176,7 +176,13 @@ TIME_ZONE = 'Asia/Saigon'
 USE_I18N = True
 
 USE_TZ = True
-
+# Cache settings
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "otp_cache",
+    }
+}
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
