@@ -85,7 +85,7 @@ def order_detail(request, order_id):
             except Order.DoesNotExist:
                 return Response({'error': 'Order not found'}, status=404)
         else:
-            Order.objects.all().delete()
+            Order.objects.all().update(status=False)
             return Response({'message': 'All orders deleted successfully!'})
     else:
         return HttpResponse(status=405)  # Method Not Allowed    
