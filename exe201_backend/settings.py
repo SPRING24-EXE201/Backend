@@ -50,11 +50,18 @@ INSTALLED_APPS = [
     'cabinet',
 
     'rest_framework',
+    'rest_framework_simplejwt',
+
     'drf_spectacular',
     'corsheaders',
 ]
 
-
+JWT_AUTH = {
+    'JWT_VERIFY': True,
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_EXPIRATION_DELTA': timedelta(seconds=3000),
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+}
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_METHODS = (
@@ -85,6 +92,9 @@ SPECTACULAR_SETTINGS = {
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+    'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ]
 }
 
 
@@ -125,9 +135,9 @@ WSGI_APPLICATION = 'exe201_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("DB_NAME", "ibox_dev"),
-        'PASSWORD': os.environ.get("DB_PASSWORD", ""),
-        'USER': os.environ.get("DB_USER", "tranduy"),
+        'NAME': os.environ.get("DB_NAME", "iBox"),
+        'PASSWORD': os.environ.get("DB_PASSWORD", "12345"),
+        'USER': os.environ.get("DB_USER", "nhattan"),
         'HOST': os.environ.get("DB_HOST", "localhost"),
         'PORT': os.environ.get("DB_PORT", "5432"),
     }

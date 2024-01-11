@@ -30,7 +30,7 @@ class Utils:
         </div>"""
         try:
             cache.set(key=to_email, value=otp_code, timeout=SystemConstants.otp_timeout)
-            test = cache.get(to_email)
+         
             msg = EmailMultiAlternatives(subject, html_body, SystemConstants.from_email_address, [to_email])
             msg.content_subtype = 'html'
             # Return number of message send success
