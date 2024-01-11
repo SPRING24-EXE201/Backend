@@ -22,6 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/location/', include('location.root_urls')),            
     path('api/v1/cabinet/', include('cabinet.root_urls')),
+    path('api/v1/order/', include('order.root_urls')),
     path('api/v1/user/', include('user.root_urls')),
 
     # API Schema:
@@ -29,5 +30,6 @@ urlpatterns = [
     # Optional UI:
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-    
+
 ]
+
