@@ -28,14 +28,16 @@ def otp_confirm(request):
                     'refresh': str(refresh),
                 }
                 status_code = 200
+                user.refresh_token = str(refresh)
+                user.save()
             else:
-                raise Exception('OTP is not match')
+                raise Exception('OTP không khớp')
     except User.DoesNotExist as e:
-        data = {'message': "User does not exist"}
+        data = {'message': "Email không tồn tại"}
         status_code = 400
     except Exception as e:
         data = {'message': str(e)}
-        status_code = 403
+        status_code = 401
     finally: 
         return JsonResponse(data, status=status_code)
 
