@@ -50,8 +50,7 @@ INSTALLED_APPS = [
     'cabinet',
 
     'rest_framework',
-    'rest_framework_simplejwt',
-
+    'django_filters',
     'drf_spectacular',
     'corsheaders',
 ]
@@ -91,10 +90,11 @@ SPECTACULAR_SETTINGS = {
 }
 
 REST_FRAMEWORK = {
+    'SEARCH_PARAM': 'search_query',
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-    'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_FILTER_BACKENDS': 'django_filters.rest_framework.DjangoFilterBackend',
+    'PAGE_SIZE': 100
 }
 
 
@@ -135,9 +135,9 @@ WSGI_APPLICATION = 'exe201_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("DB_NAME", "iBox"),
+        'NAME': os.environ.get("DB_NAME", "ibox_dev"),
         'PASSWORD': os.environ.get("DB_PASSWORD", "12345"),
-        'USER': os.environ.get("DB_USER", "nhattan"),
+        'USER': os.environ.get("DB_USER", "postgres"),
         'HOST': os.environ.get("DB_HOST", "localhost"),
         'PORT': os.environ.get("DB_PORT", "5432"),
     }

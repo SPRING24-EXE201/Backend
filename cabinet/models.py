@@ -1,4 +1,3 @@
-
 from django.db import models
 from django.utils import timezone
 
@@ -7,14 +6,14 @@ from location.models import Location
 
 # Create your models here.
 class Controller(models.Model):
-    location_id = models.ForeignKey(Location, on_delete=models.CASCADE)
+    location_id = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='controller_set')
     name = models.CharField(max_length=100)
     kafka_id = models.CharField(max_length=100)
     topic = models.CharField(max_length=100)
     status = models.BooleanField()
 
     def __str__(self):
-        return self.name
+        return f"{self.location_id} - {self.name}"
 
 
 class CabinetType(models.Model):
@@ -52,7 +51,7 @@ class Campaign(models.Model):
 
 
 class Cabinet(models.Model):
-    controller_id = models.ForeignKey(Controller, on_delete=models.CASCADE)
+    controller_id = models.ForeignKey(Controller, related_name='cabinet_set',on_delete=models.CASCADE)
     cabinetType_id = models.ForeignKey(CabinetType, on_delete=models.CASCADE)
     description = models.CharField(max_length=100)
     start_using_date = models.CharField(max_length=100)
@@ -64,6 +63,9 @@ class Cabinet(models.Model):
     virtual_cabinet_id = models.CharField(max_length=100)
 
 
+    def __str__(self):
+            return str(self.id)
+
 class CampaignCabinet(models.Model):
     campaign_id = models.ForeignKey(Campaign, on_delete=models.CASCADE)
     cabinet_id = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
@@ -74,7 +76,7 @@ class CampaignCabinet(models.Model):
 
 
 class Cell(models.Model):
-    cabinet_id = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
+    cabinet_id = models.ForeignKey(Cabinet, on_delete=models.CASCADE, related_name='cells')
     user_id = models.IntegerField()
     status = models.PositiveSmallIntegerField()
     hash_code = models.CharField(max_length=100)
@@ -82,9 +84,10 @@ class Cell(models.Model):
     width = models.FloatField()
     height = models.FloatField()
     depth = models.FloatField()
+    expired_date = models.DateTimeField(null=True, blank=True, default=None)
 
     def __str__(self):
-        return f'{self.cell_index} - Cabinet {self.cabinet_id}'
+        return f'{self.cell_index} - {self.cabinet_id}'
 
 
 class CellLog(models.Model):

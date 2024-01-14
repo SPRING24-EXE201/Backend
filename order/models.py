@@ -16,6 +16,7 @@ class Order(models.Model):
     def __str__(self):
         return self.order_id
 
+
 class OrderDetail(models.Model):
     cell_id = models.ForeignKey(Cell, on_delete=models.CASCADE)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -24,3 +25,6 @@ class OrderDetail(models.Model):
     time_start = models.DateTimeField(null=True, blank=True, default=None)
     time_end = models.DateTimeField(null=True, blank=True, default=None)
     sub_total = models.FloatField()
+
+    def __str__(self):
+        return f"{self.cell_id} - {self.order_id}"
