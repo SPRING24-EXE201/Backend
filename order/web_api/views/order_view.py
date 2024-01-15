@@ -1,17 +1,18 @@
-from rest_framework import status
+from rest_framework import status, pagination
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
 from django.http import JsonResponse, HttpResponse
+from rest_framework.pagination import PageNumberPagination
+from order.pagination import CustomPageNumberPagination
 
 from order.models import Order
-from order.web_api.serializers.order_serializer import OrderSerializer
+from order.web_api.serializers.order_serializer import OrderSerializer, OrderByUserSerializer
 
 @api_view(['GET', 'POST'])
 def order_list(request):
     if request.method == 'GET':
-        orders = Order.objects.all()
-        orders = Order.objects.filter(status=True)
+        orders = Order.objects.all().order_by('order_detail__time_start')
+        orders = Order.objects.filter(status=True).order_by('order_detail__time_start')
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
@@ -44,7 +45,10 @@ def order_list(request):
 def order_detail(request, order_id):
     if request.method == 'GET':
         if order_id:
-            order = Order.objects.get(order_id=order_id)
+            try:
+                order = Order.objects.get(order_id=order_id)
+            except Order.DoesNotExist:
+                order = None
             serializer = OrderSerializer(order)
             return Response(serializer.data)
     elif request.method == 'PUT':
@@ -88,4 +92,23 @@ def order_detail(request, order_id):
             Order.objects.all().update(status=False)
             return Response({'message': 'All orders deleted successfully!'})
     else:
-        return HttpResponse(status=405)  # Method Not Allowed    
+        return HttpResponse(status=405)  # Method Not Allowed   
+
+@api_view(['GET'])
+def get_orders_by_user(request, user_id):
+    # Get all Order objects related to the user_id
+    orders = Order.objects.filter(order_detail__user_id=user_id).order_by('order_detail__time_start')
+
+    paginator = CustomPageNumberPagination()
+
+    result_page = paginator.paginate_queryset(orders, request)
+
+    # If no orders are found, return an empty list
+    if not orders.exists():
+        return Response([])
+
+    # Serialize the data
+    serializer = OrderByUserSerializer(result_page, many=True)
+
+    # Return the serialized data
+    return paginator.get_paginated_response(serializer.data)
