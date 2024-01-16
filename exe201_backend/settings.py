@@ -135,9 +135,9 @@ WSGI_APPLICATION = 'exe201_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("DB_NAME", "iBox"),
+        'NAME': os.environ.get("DB_NAME", "ibox_dev"),
         'PASSWORD': os.environ.get("DB_PASSWORD", "12345"),
-        'USER': os.environ.get("DB_USER", "nhattan"),
+        'USER': os.environ.get("DB_USER", "postgres"),
         'HOST': os.environ.get("DB_HOST", "localhost"),
         'PORT': os.environ.get("DB_PORT", "5432"),
     }
