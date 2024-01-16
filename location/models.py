@@ -69,6 +69,7 @@ class Location(models.Model):
     ward_id = models.ForeignKey(Ward, on_delete=models.CASCADE, null = True, blank = True)
     location_detail = models.CharField(max_length=100)
     id = models.CharField(max_length=17, unique=True, default=location_custom_id, editable=False, primary_key=True)
+    location_name = models.CharField(max_length=100, blank=True)
 
 
 
