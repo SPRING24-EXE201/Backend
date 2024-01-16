@@ -13,8 +13,8 @@ class UserManager(BaseUserManager):
         if not email:
             raise ValueError('The given email must be set')
         email = self.normalize_email(email)
-        if User.objects.get(email=email) is not None:
-            raise ValueError('Email already register')
+        if User.objects.filter(email=email).exists():
+            raise ValidationError('Email already registered')
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
