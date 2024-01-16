@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 from location.models import Location, Ward, District, Province
 from cabinet.models import Cabinet, Controller, Cell
+from django.utils import timezone
 from order.models import Order, OrderDetail
 from datetime import datetime, timedelta
 from django.db.models import Count, Q
@@ -9,7 +10,7 @@ import django_filters.rest_framework
 
 
 class CabinetSerializer(serializers.ModelSerializer):
-    empty_cells = serializers.SerializerMethodField(method_name='get_empty_cells_count')
+    empty_cells = serializers.SerializerMethodField(method_name='get_empty_cells')
     cabinet_id = serializers.IntegerField(source='id')
     description = serializers.SerializerMethodField()
 
@@ -17,13 +18,14 @@ class CabinetSerializer(serializers.ModelSerializer):
         model = Cabinet
         fields = ['cabinet_id', 'empty_cells', 'description']
 
-    def get_empty_cells_count(self, obj):
-        now = datetime.now()
-        count_user_is_null = Cell.objects.filter(cabinet_id=obj.id, user_id__isnull=True).count()
-        cells = OrderDetail.objects.extra(where=["time_start >= %s OR time_end <= %s"],
-                                          params=[now + timedelta(minutes=30), now]).count()
-        empty_cells_count = count_user_is_null + cells
-        return empty_cells_count
+    def get_empty_cells(self, obj):
+        now = timezone.now()
+        empty_cells = 0
+        all_cells = Cell.objects.filter(cabinet_id=obj.id)
+        for cell in all_cells:
+            if cell.expired_date < now or cell.user_id is None:
+                empty_cells += 1
+        return empty_cells
     
     def get_description(self, obj):
         return obj.description
