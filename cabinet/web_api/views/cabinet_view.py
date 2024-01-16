@@ -33,11 +33,19 @@ def get_cabinet_by_id(request, cabinet_id):
     try:
         cabinet = Cabinet.objects.get(id=cabinet_id)
     except Cabinet.DoesNotExist:
-        raise Http404("Not found")
+        return Response({
+            'status': False,
+            'message': 'Cabinet does not exist: ' + str(cabinet_id),
+        })
+    except Exception:
+        return Response({
+            'status': False,
+            'message': "An error occurred while getting cabinet details: " + str(cabinet_id),
+        })
 
     data = CabinetDetailsSerializer(cabinet).data
 
     return Response({
-        'success': True,
+        'status': True,
         'data': data,
     })

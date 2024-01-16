@@ -63,6 +63,9 @@ class Cabinet(models.Model):
     image_link = models.CharField(max_length=100)
     virtual_cabinet_id = models.CharField(max_length=100)
 
+    def __str__(self):
+        return f"{self.id}"
+
 
 class CampaignCabinet(models.Model):
     campaign_id = models.ForeignKey(Campaign, on_delete=models.CASCADE)
