@@ -3,14 +3,9 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view
 from django.core.cache import cache
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from user.web_api.serializers.otp_confirm_serializer import OtpConfirmSerializer
-
 from user.models import User
 
-@extend_schema(
-    request=OtpConfirmSerializer
-)
 @api_view(['POST'])
 def otp_confirm(request):
     try:
@@ -40,5 +35,3 @@ def otp_confirm(request):
         status_code = 401
     finally: 
         return JsonResponse(data, status=status_code)
-
-  
