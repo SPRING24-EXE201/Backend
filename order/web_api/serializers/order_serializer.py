@@ -1,6 +1,6 @@
-from rest_framework import serializers, generics
-
+from rest_framework import serializers
 from order.models import Order
+from order.models import OrderDetail
 
 class OrderSerializer(serializers.ModelSerializer):
     order_detail_id = serializers.IntegerField(source='id')
@@ -37,7 +37,6 @@ class OrderByUserSerializer(serializers.ModelSerializer):
     order_date = serializers.DateTimeField()
     start_date = serializers.SerializerMethodField()
     end_date = serializers.SerializerMethodField()
-
 
     class Meta:
         model = Order
