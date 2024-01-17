@@ -1,3 +1,6 @@
+from rest_framework_simplejwt.tokens import UntypedToken
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import HttpResponse
@@ -95,7 +98,19 @@ def order_detail(request, order_id):
 
 
 @api_view(['GET'])
-def get_orders_by_user(request, user_id):
+def get_orders_by_user(request):
+    # Get the token from the request headers
+    token = request.headers.get('Authorization')
+
+    # Remove 'Bearer ' from the token
+    token = token.split(' ')[1]
+
+    try:
+        # Decode the token to get the user_id
+        user_id = UntypedToken(token).payload['user_id']
+    except (InvalidToken, TokenError):
+        return Response({'error': 'Invalid token'}, status=400)
+
     # Get all Order objects related to the user_id
     orders = Order.objects.filter(order_detail__user_id=user_id).order_by('order_detail__time_start')
 
