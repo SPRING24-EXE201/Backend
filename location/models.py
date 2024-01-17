@@ -1,6 +1,5 @@
 from django.db import models
-
-
+from utils.custom_id import location_custom_id, district_custom_id, province_custom_id, ward_custom_id
 class AdministrativeRegion(models.Model):
     name = models.CharField(max_length=100)
     name_en = models.CharField(max_length=100)
@@ -32,6 +31,7 @@ class Province(models.Model):
     full_name = models.CharField(max_length=100)
     full_name_en = models.CharField(max_length=100)
     code_name = models.CharField(max_length=100)
+    id = models.CharField(max_length=17, unique=True, default=province_custom_id, editable=False, primary_key=True)
 
     def __str__(self):
         return self.full_name
@@ -45,6 +45,7 @@ class District(models.Model):
     full_name = models.CharField(max_length=100)
     full_name_en = models.CharField(max_length=100)
     code_name = models.CharField(max_length=100)
+    id = models.CharField(max_length=17, unique=True, default=district_custom_id, editable=False, primary_key=True)
 
     def __str__(self):
         return self.full_name
@@ -58,11 +59,16 @@ class Ward(models.Model):
     full_name = models.CharField(max_length=100)
     full_name_en = models.CharField(max_length=100)
     code_name = models.CharField(max_length=100)
+    id = models.CharField(max_length=17, unique=True, default=ward_custom_id, editable=False, primary_key=True)
 
     def __str__(self):
         return self.full_name
 
 
 class Location(models.Model):
-    ward_id = models.ForeignKey(Ward, on_delete=models.CASCADE)
+    ward_id = models.ForeignKey(Ward, on_delete=models.CASCADE, null = True, blank = True)
     location_detail = models.CharField(max_length=100)
+    id = models.CharField(max_length=17, unique=True, default=location_custom_id, editable=False, primary_key=True)
+
+
+

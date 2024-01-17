@@ -50,11 +50,18 @@ INSTALLED_APPS = [
     'cabinet',
 
     'rest_framework',
+    'rest_framework_simplejwt',
+
     'drf_spectacular',
     'corsheaders',
 ]
 
-
+JWT_AUTH = {
+    'JWT_VERIFY': True,
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_EXPIRATION_DELTA': timedelta(seconds=3000),
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+}
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_METHODS = (
@@ -85,6 +92,9 @@ SPECTACULAR_SETTINGS = {
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+    'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ]
 }
 
 
@@ -125,9 +135,9 @@ WSGI_APPLICATION = 'exe201_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("DB_NAME", "ibox_dev"),
-        'PASSWORD': os.environ.get("DB_PASSWORD", ""),
-        'USER': os.environ.get("DB_USER", "tranduy"),
+        'NAME': os.environ.get("DB_NAME", "iBox"),
+        'PASSWORD': os.environ.get("DB_PASSWORD", "12345"),
+        'USER': os.environ.get("DB_USER", "nhattan"),
         'HOST': os.environ.get("DB_HOST", "localhost"),
         'PORT': os.environ.get("DB_PORT", "5432"),
     }
@@ -176,7 +186,13 @@ TIME_ZONE = 'Asia/Saigon'
 USE_I18N = True
 
 USE_TZ = True
-
+# Cache settings
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "otp_cache",
+    }
+}
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
@@ -189,3 +205,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Change user model
 AUTH_USER_MODEL = "user.User"
+
+# Email Server Settings
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
+EMAIL_HOST_USER = 'ibox.customerservice@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = True

@@ -13,6 +13,8 @@ class Order(models.Model):
     order_date = models.DateTimeField(null=True, blank=True, default=timezone.now)
     status = models.BooleanField()
 
+    def __str__(self):
+        return self.order_id
 
 class OrderDetail(models.Model):
     cell_id = models.ForeignKey(Cell, on_delete=models.CASCADE)
