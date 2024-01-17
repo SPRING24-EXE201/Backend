@@ -1,40 +1,6 @@
-from rest_framework import serializers, generics
-
+from rest_framework import serializers
 from order.models import Order
 from order.models import OrderDetail
-from cabinet.models import Cell
-from cabinet.models import Cabinet
-from cabinet.models import Controller
-from cabinet.models import Location
-from order.web_api.serializers.order_detail_serializer import OrderDetailSerializer
-from cabinet.web_api.serializers.cell_serializer import CellSerializer
-
-# class LocationSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Location
-#         fields = ['location_detail']
-# class ControllerSerializer(serializers.ModelSerializer):
-#     location_id = LocationSerializer(read_only=True)
-#     class Meta:
-#         model = Controller
-#         fields = ['location_id']
-# class CabinetSerializer(serializers.ModelSerializer):
-#     controller_id = ControllerSerializer(read_only=True)
-#     class Meta:
-#         model = Cabinet
-#         fields = ['controller_id']
-
-# class CellSerializer(serializers.ModelSerializer):
-#     cabinet_id = CabinetSerializer(read_only=True)
-#     class Meta:
-#         model = Cell
-#         fields = ('id', 'cell_index', 'cabinet_id')
-
-# class OrderDetailSerializer(serializers.ModelSerializer):
-#     cell_id = CellSerializer(read_only=True)
-#     class Meta:
-#         model = OrderDetail
-#         fields = ('id', 'time_start', 'time_end', 'cell_id')
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -64,7 +30,6 @@ class OrderByUserSerializer(serializers.ModelSerializer):
     order_date = serializers.DateTimeField()
     start_date = serializers.SerializerMethodField()
     end_date = serializers.SerializerMethodField()
-
 
     class Meta:
         model = Order

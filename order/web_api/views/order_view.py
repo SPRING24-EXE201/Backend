@@ -1,12 +1,11 @@
-from rest_framework import status, pagination
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.http import JsonResponse, HttpResponse
-from rest_framework.pagination import PageNumberPagination
+from django.http import HttpResponse
 from order.pagination import CustomPageNumberPagination
 
 from order.models import Order
 from order.web_api.serializers.order_serializer import OrderSerializer, OrderByUserSerializer
+
 
 @api_view(['GET', 'POST'])
 def order_list(request):
@@ -40,59 +39,60 @@ def order_list(request):
         )
 
         return Response({'message': 'Order created successfully!'})
-    
+
+
 @api_view(['GET', 'PUT', 'DELETE'])
 def order_detail(request, order_id):
-    if request.method == 'GET':
-        if order_id:
-            try:
-                order = Order.objects.get(order_id=order_id)
-            except Order.DoesNotExist:
-                order = None
-            serializer = OrderSerializer(order)
-            return Response(serializer.data)
-    elif request.method == 'PUT':
-        if order_id:
-            total_amount = request.data.get('total_amount')
-            payment_method = request.data.get('payment_method')
-            order_date = request.data.get('order_date')
-            status = request.data.get('status')
-
-            # Check null values
-            if total_amount is None or payment_method is None or order_date is None or status is None:
-                return Response({'message': 'Invalid input. Please provide all required fields.'}, status=400)
-
-            # Check each value to update
-            update_values = {
-                'total_amount': total_amount,
-                'payment_method': payment_method,
-                'order_date': order_date,
-                'status': status
-            }
-
-            # Update the Order object
-            Order.objects.filter(order_id=order_id).update(**update_values)
-
-            return Response({'message': 'Order updated successfully!'})
-    elif request.method == 'DELETE':
-        if order_id:
-            try:
-                order = Order.objects.get(order_id=order_id)
-                if order.status is None:
-                    return Response({'error': 'Order status is None, cannot delete'}, status=400)
-                elif order.status:
-                    order.status = False 
-                    order.save()
-                    return Response({'message': 'Order deleted successfully!'}, status=200)
+    try:
+        if request.method == 'GET':
+            if order_id:
+                try:
+                    order = Order.objects.get(order_id=order_id)
+                except Order.DoesNotExist:
+                    return Response({'error': 'Order not found'}, status=404)
+                serializer = OrderSerializer(order)
+                return Response(serializer.data)
+        elif request.method == 'PUT':
+            if order_id:
+                serializer = OrderSerializer(data=request.data)
+                if serializer.is_valid():
+                    try:
+                        # Check if the order exists
+                        order = Order.objects.get(order_id=order_id)
+                        # Update the order
+                        serializer.update(order, serializer.validated_data)
+                        return Response({'message': 'Order updated successfully!', 'order': serializer.data})
+                    except Order.DoesNotExist:
+                        return Response({'error': 'Order with id {} not found'.format(order_id)}, status=404)
                 else:
-                    return Response({'error': 'Order cannot be deleted because its status is already False'}, status=400)
-            except Order.DoesNotExist:
-                return Response({'error': 'Order not found'}, status=404)
+                    return Response(serializer.errors, status=400)
+        elif request.method == 'DELETE':
+            if order_id:
+                try:
+                    order = Order.objects.get(order_id=order_id)
+                    if order.status is None:
+                        return Response({'error': 'Order status is None, cannot delete'}, status=400)
+                    elif order.status:
+                        order.status = False
+                        order.save()
+                        return Response({'message': 'Order deleted successfully!'}, status=200)
+                    else:
+                        return Response({'error': 'Order cannot be deleted because its status is already False'},
+                                        status=400)
+                except Order.DoesNotExist:
+                    return Response({'error': 'Order not found'}, status=404)
+            else:
+                Order.objects.all().update(status=False)
+                return Response({'message': 'All orders deleted successfully!'})
         else:
-            Order.objects.all().update(status=False)
-            return Response({'message': 'All orders deleted successfully!'})
-    else:
-        return HttpResponse(status=405)  # Method Not Allowed   
+            return HttpResponse(status=405)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+    finally:
+        # This block will be executed regardless of the try block's outcome.
+        # You can put cleanup code here, if needed.
+        pass
+
 
 @api_view(['GET'])
 def get_orders_by_user(request, user_id):
