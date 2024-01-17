@@ -6,6 +6,7 @@ from order.pagination import CustomPageNumberPagination
 from order.models import Order
 from order.web_api.serializers.order_serializer import OrderSerializer, OrderByUserSerializer
 
+
 @api_view(['GET', 'POST'])
 def order_list(request):
     if request.method == 'GET':
