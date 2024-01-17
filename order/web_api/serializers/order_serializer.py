@@ -8,7 +8,6 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = ['order_id', 'total_amount', 'payment_method', 'order_date', 'status']
 
 class OrderDetailSerializer(serializers.ModelSerializer):
-    user_id = serializers.ReadOnlyField(source='user.id')
     order_id = serializers.ReadOnlyField(source='order.order_id')
     cell_id = serializers.ReadOnlyField(source='cell_id.id')
     cell_index = serializers.ReadOnlyField(source='cell_id.cell_index')
@@ -17,10 +16,9 @@ class OrderDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderDetail
-        fields = ['order_id', 'id', 'cell_id', 'cell_index', 'cabinet_description', 'location_detail', 'time_start', 'time_end', 'user_id']
+        fields = ['order_id', 'id', 'cell_id', 'cell_index', 'cabinet_description', 'location_detail', 'time_start', 'time_end']
 
 class OrderByUserSerializer(serializers.ModelSerializer):
-    user_id = serializers.SerializerMethodField()
     order_id = serializers.IntegerField(source='id')
     order_detail_id = serializers.SerializerMethodField()
     cell_id = serializers.SerializerMethodField()
@@ -33,7 +31,7 @@ class OrderByUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['order_id', 'order_detail_id', 'cell_id', 'cell_index', 'cabinet_description', 'location_detail', 'order_date', 'start_date', 'end_date', 'user_id']
+        fields = ['order_id', 'order_detail_id', 'cell_id', 'cell_index', 'cabinet_description', 'location_detail', 'order_date', 'start_date', 'end_date']
 
     def get_order_detail_id(self, obj):
         return obj.order_detail.first().id
@@ -55,6 +53,3 @@ class OrderByUserSerializer(serializers.ModelSerializer):
 
     def get_end_date(self, obj):
         return obj.order_detail.first().time_end
-    
-    def get_user_id(self, obj):
-        return obj.order_detail.first().user_id.id
