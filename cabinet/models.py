@@ -84,7 +84,7 @@ class Cell(models.Model):
     depth = models.FloatField()
 
     def __str__(self):
-        return f'{self.cell_index} - Cabinet {self.cabinet_id}'
+        return f'{self.cell_index} - Cabinet {self.cabinet_id.description}'
 
 
 class CellLog(models.Model):

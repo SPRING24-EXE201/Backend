@@ -4,14 +4,14 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from django.http import JsonResponse, HttpResponse
 
-from order.models import Order
+from order.models import Order, OrderDetail
 from order.web_api.serializers.order_serializer import OrderSerializer
 
 @api_view(['GET', 'POST'])
 def order_list(request):
     if request.method == 'GET':
-        orders = Order.objects.all()
-        orders = Order.objects.filter(status=True)
+        orders = OrderDetail.objects.all()
+        orders = OrderDetail.objects.filter(order_id__status=True)
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
