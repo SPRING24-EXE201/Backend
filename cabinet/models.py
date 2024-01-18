@@ -75,13 +75,14 @@ class CampaignCabinet(models.Model):
 
 class Cell(models.Model):
     cabinet_id = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
-    user_id = models.IntegerField()
+    user_id = models.IntegerField(null=True)
     status = models.PositiveSmallIntegerField()
     hash_code = models.CharField(max_length=100)
     cell_index = models.PositiveSmallIntegerField()
     width = models.FloatField()
     height = models.FloatField()
     depth = models.FloatField()
+    expired_date = models.DateTimeField(null=True, blank=True, default=None)
 
     def __str__(self):
         return f'{self.cell_index} - Cabinet {self.cabinet_id.description}'

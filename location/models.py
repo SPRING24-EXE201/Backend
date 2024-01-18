@@ -1,5 +1,5 @@
 from django.db import models
-from utils.custom_id import location_custom_id, district_custom_id, province_custom_id, ward_custom_id
+from exe201_backend.common.custom_id import location_custom_id, district_custom_id, province_custom_id, ward_custom_id
 class AdministrativeRegion(models.Model):
     name = models.CharField(max_length=100)
     name_en = models.CharField(max_length=100)
@@ -68,6 +68,7 @@ class Ward(models.Model):
 class Location(models.Model):
     ward_id = models.ForeignKey(Ward, on_delete=models.CASCADE, null = True, blank = True)
     location_detail = models.CharField(max_length=100)
+    location_name = models.CharField(max_length=100, blank= True)
     id = models.CharField(max_length=17, unique=True, default=location_custom_id, editable=False, primary_key=True)
 
 

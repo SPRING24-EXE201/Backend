@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import utils.custom_id
+import exe201_backend.common.custom_id
 
 
 class Migration(migrations.Migration):
@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='location',
             name='id',
-            field=models.CharField(default=utils.custom_id.location_custom_id, editable=False, max_length=17, primary_key=True, serialize=False, unique=True),
+            field=models.CharField(default=exe201_backend.common.custom_id.location_custom_id, editable=False, max_length=17, primary_key=True, serialize=False, unique=True),
         ),
         migrations.AlterField(
             model_name='location',
