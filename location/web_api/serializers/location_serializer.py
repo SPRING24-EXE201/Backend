@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import serializers
 
 from location.models import Location
@@ -8,7 +9,6 @@ from django.utils import timezone
 class CabinetSerializer(serializers.ModelSerializer):
     empty_cells = serializers.SerializerMethodField()
     cabinet_id = serializers.IntegerField(source='id')
-    description = serializers.CharField()
 
     class Meta:
         model = Cabinet
@@ -16,15 +16,21 @@ class CabinetSerializer(serializers.ModelSerializer):
 
     def get_empty_cells(self, obj):
         now = timezone.now()
-        empty_cells = 0
-        all_cells = Cell.objects.filter(cabinet_id=obj.id)
-        for cell in all_cells:
-            if (cell.expired_date is not None and cell.expired_date < now) or cell.user_id is None:
-                empty_cells += 1
-        return empty_cells
-    
-    def get_description(self, obj):
-        return obj.description
+
+        # Case 1: user_id is null and expired_date is null
+        query_user_not_exists = Q(cabinet_id=obj.id,
+                                  user_id__isnull=True,
+                                  expired_date__isnull=True
+                                  )
+
+        # Case 2: user_id is not null and expired_date is less than or equal to now
+        query_user_exists = Q(cabinet_id=obj.id,
+                              expired_date__isnull=False,
+                              expired_date__lte=now,
+                              user_id__isnull=False
+                              )
+
+        return Cell.objects.filter(query_user_exists | query_user_not_exists).count()
 
     
 class LocationSerializer(serializers.ModelSerializer):
@@ -35,10 +41,9 @@ class LocationSerializer(serializers.ModelSerializer):
 
 class CabinetLocationSerializer(serializers.ModelSerializer):
     location_id = serializers.IntegerField(source='id')
-    location_name = serializers.CharField()
-    ward_name = serializers.SerializerMethodField()
-    district_name = serializers.SerializerMethodField()
-    province_name = serializers.SerializerMethodField()
+    ward_name = serializers.CharField(source='ward_id.name')
+    district_name = serializers.CharField(source='ward_id.district_id.name')
+    province_name = serializers.CharField(source='ward_id.district_id.province_id.name')
     cabinets = serializers.SerializerMethodField()
 
     class Meta:
@@ -46,19 +51,6 @@ class CabinetLocationSerializer(serializers.ModelSerializer):
         fields = ['location_id', 'ward_name', 'district_name', 'province_name', 'location_detail', 'location_name',
                   'cabinets']
 
-    def get_ward_name(self, obj):
-        return obj.ward_id.name
-
-    def get_district_name(self, obj):
-        return obj.ward_id.district_id.name
-
-    def get_province_name(self, obj):
-        return obj.ward_id.district_id.province_id.name
-
-    def get_description(self, obj):
-        return obj.description
-
     def get_cabinets(self, obj):
-        controllers = Controller.objects.filter(location_id=obj.id)
-        cabinets = Cabinet.objects.filter(controller_id__in=controllers.values_list('id', flat=True))
+        cabinets = Cabinet.objects.filter(controller_id__location_id__id=obj.id)
         return CabinetSerializer(cabinets, many=True).data
