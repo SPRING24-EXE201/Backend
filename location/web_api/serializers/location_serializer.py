@@ -19,7 +19,7 @@ class CabinetSerializer(serializers.ModelSerializer):
         empty_cells = 0
         all_cells = Cell.objects.filter(cabinet_id=obj.id)
         for cell in all_cells:
-            if cell.expired_date < now or cell.user_id is None:
+            if (cell.expired_date is not None and cell.expired_date < now) or cell.user_id is None:
                 empty_cells += 1
         return empty_cells
     
