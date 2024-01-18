@@ -120,6 +120,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'djangorestframework_camel_case.middleware.CamelCaseMiddleWare',
+    'exe201_backend.error_middleware.ExceptionMiddleware'
 ]
 
 ROOT_URLCONF = 'exe201_backend.urls'
