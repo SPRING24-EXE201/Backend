@@ -7,6 +7,9 @@ from cabinet.models import Cabinet, Cell, Controller
 from django.core.exceptions import PermissionDenied
 from cabinet.web_api.serializers.cabinet_opening_serializer import CabinetOpeningSerializerRequest, CabinetOpeningSerializerResponse
 
+@extend_schema(
+    request = CabinetOpeningSerializerRequest
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def get_cabinet_opening_view(request):
@@ -14,15 +17,15 @@ def get_cabinet_opening_view(request):
         serializers = CabinetOpeningSerializerRequest(data=request.data)
         if serializers.is_valid():
             hash_code = serializers.data.get('hash_code')
-            cell = Cell.objects.get(hash_code=hash_code)
             access_token = request.auth
+            refresh = RefreshToken.for_user(request.user)
             user_id = access_token['user_id']
+            cell = Cell.objects.get(hash_code=hash_code)
 
             if user_id == cell.user_id:
                 controller = cell.cabinet_id.controller_id
                 json_data = {"controller_id": controller.id, "cabinet_id": cell.cabinet_id_id, "cell_index": cell.cell_index}
-                data = CabinetOpeningSerializerResponse(
-                    json_data, many = False ).data
+                data = CabinetOpeningSerializerResponse(json_data, many = False ).data
                 status_code = 200
             else:
                 raise PermissionDenied("Không có quyên truy cập")
@@ -37,5 +40,3 @@ def get_cabinet_opening_view(request):
         status_code = 500
     finally:
         return JsonResponse(data, status=status_code)
-
-

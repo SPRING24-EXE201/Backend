@@ -5,6 +5,9 @@ from django.core.cache import cache
 from rest_framework_simplejwt.tokens import RefreshToken
 from user.web_api.serializers.otp_confirm_serializer import OtpConfirmSerializer
 from user.models import User
+@extend_schema(
+    request= OtpConfirmSerializer
+)
 
 @api_view(['POST'])
 def otp_confirm(request):
