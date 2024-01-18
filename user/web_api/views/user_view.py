@@ -12,7 +12,7 @@ def get_user(request):
     """
     user = []
     try:
-        user = User.objects.all().filter(status=True)
+        user = User.objects.all().filter(is_active=True)
     except User.DoesNotExist:
         pass
 

@@ -55,3 +55,4 @@ virtualenv==20.25.0
 zipp==3.17.0
 drf-spectacular==0.27.0
 django-cors-headers==4.3.1
+djangorestframework-camel-case==1.4.2

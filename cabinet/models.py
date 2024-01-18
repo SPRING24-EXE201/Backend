@@ -85,7 +85,7 @@ class Cell(models.Model):
     expired_date = models.DateTimeField(null=True, blank=True, default=None)
 
     def __str__(self):
-        return f'{self.cell_index} - Cabinet {self.cabinet_id}'
+        return f'{self.cell_index} - Cabinet {self.cabinet_id.description}'
 
 
 class CellLog(models.Model):
