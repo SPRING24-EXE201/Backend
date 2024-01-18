@@ -1,5 +1,5 @@
 from django.db import models
-from utils.custom_id import location_custom_id, district_custom_id, province_custom_id, ward_custom_id
+from exe201_backend.common.custom_id import location_custom_id, district_custom_id, province_custom_id, ward_custom_id
 class AdministrativeRegion(models.Model):
     name = models.CharField(max_length=100)
     name_en = models.CharField(max_length=100)
