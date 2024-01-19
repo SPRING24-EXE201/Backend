@@ -4,11 +4,21 @@ from jsonschema.exceptions import ValidationError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
 from cabinet.models import Cabinet, Cell
 from cabinet.web_api.serializers.cabinet_serializer import CabinetSerializer, EmptyCellsSerializer, \
     EmptyCellsRequestSerializer
 from order.models import OrderDetail
+from rest_framework.response import Response
+from django.core.exceptions import PermissionDenied
+from django.http import JsonResponse
+from drf_spectacular.utils import extend_schema
+from django.utils import timezone
+from math import sqrt
+from operator import itemgetter
+from django.db.models import Count, Q
+from cabinet.models import Cabinet
+from cabinet.web_api.serializers.cabinet_serializer import CabinetByLocation
+from cabinet.pagination import CustomPageNumberPagination
 
 
 @api_view(['GET'])
@@ -22,13 +32,12 @@ def get_cabinet(request):
     except Cabinet.DoesNotExist:
         pass
 
-    data = CabinetSerializer(cabinet, many=True).data
+    data = CabinetByLocation(cabinet, many=True).data
 
     return Response({
         'success': True,
         'data': data,
     })
-
 
 @extend_schema(
     parameters=[
@@ -67,3 +76,62 @@ def get_empty_cells(request, cabinet_id):
 
     data = EmptyCellsSerializer(empty_cells, many=True).data
     return Response(data)
+def euclidean_distance(x1, y1, x2, y2):
+    return sqrt((x2 - x1)**2 + (y2 - y1)**2)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_cabinet_by_location(request):
+    try:
+        pos_x = request.GET.get('pos_x', None)
+        pos_y = request.GET.get('pos_y', None)
+
+        if pos_x is None and pos_y is None:
+            cabinets = Cabinet.objects.all()
+        else:
+            if pos_x is None or pos_y is None:
+                raise Exception('Missing coordinates')
+
+        cabinets = Cabinet.objects.annotate(
+            empty_cells=Count('cell', filter=Q(cell__user_id__isnull=True) |
+                                             Q(cell__expired_date__lt=timezone.now()))
+        ).filter(status=True, empty_cells__gt=0)
+
+        cabinets = Cabinet.objects.filter(status=True)
+
+        if pos_x is not None and pos_y is not None:
+            cabinets_distances = []
+            for cabinet in cabinets:
+                distance = euclidean_distance(float(pos_x), float(pos_y), cabinet.controller_id.location_id.longitude,
+                                                cabinet.controller_id.location_id.latitude)
+                cabinets_distances.append((cabinet, distance))
+                status_code = 200
+
+        # Sort cabinets by distance
+        cabinets_distances.sort(key=itemgetter(1))
+
+        # Replace cabinets with sorted list
+        cabinets = [cabinet_distance[0] for cabinet_distance in cabinets_distances]
+
+        # Create a pagination instance
+        paginator = CustomPageNumberPagination()
+
+        # Get the paginated results
+        page_cabinets = paginator.paginate_queryset(cabinets, request)
+        serializer = CabinetByLocation(page_cabinets, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+    except Cabinet.DoesNotExist:
+        data = {'message': 'Cabinet does not exist'}
+        status_code = 400
+    except PermissionDenied as e:
+        data = {'message': str(e)}
+        status_code = 403
+    except Exception as e:
+        data = {'message': 'System error'}
+        status_code = 500
+    finally:
+        if 'data' in locals() and 'status_code' in locals():
+            return JsonResponse(data, status=status_code, safe=False)
+
+

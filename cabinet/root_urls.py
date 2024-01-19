@@ -6,5 +6,5 @@ urlpatterns = [
     path('campaign-cabinet/', include('cabinet.web_api.urls.campaign_cabinet_url')),
     path('cells/', include('cabinet.web_api.urls.cell_url')),
     path('cell-logs/', include('cabinet.web_api.urls.cell_log_url')),
-    path('cabinet/', include('cabinet.web_api.urls.cabinet_url'))
+    path('', include('cabinet.web_api.urls.cabinet_url'))
 ]

@@ -72,6 +72,8 @@ class Location(models.Model):
     latitude = models.FloatField(null = True, blank = True)
     longitude = models.FloatField(null = True, blank = True)
     id = models.CharField(max_length=17, unique=True, default=location_custom_id, editable=False, primary_key=True)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
 
 
 
