@@ -7,7 +7,7 @@ from location.models import Location
 
 # Create your models here.
 class Controller(models.Model):
-    location_id = models.ForeignKey(Location, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     kafka_id = models.CharField(max_length=100)
     topic = models.CharField(max_length=100)
@@ -52,8 +52,8 @@ class Campaign(models.Model):
 
 
 class Cabinet(models.Model):
-    controller_id = models.ForeignKey(Controller, on_delete=models.CASCADE)
-    cabinetType_id = models.ForeignKey(CabinetType, on_delete=models.CASCADE)
+    controller = models.ForeignKey(Controller, on_delete=models.CASCADE)
+    cabinet_type = models.ForeignKey(CabinetType, on_delete=models.CASCADE)
     description = models.CharField(max_length=100)
     start_using_date = models.CharField(max_length=100)
     height = models.FloatField()
@@ -65,16 +65,16 @@ class Cabinet(models.Model):
 
 
 class CampaignCabinet(models.Model):
-    campaign_id = models.ForeignKey(Campaign, on_delete=models.CASCADE)
-    cabinet_id = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
+    cabinet = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
     description = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"{self.campaign_id} - {self.cabinet_id}"
+        return f"{self.campaign} - {self.cabinet}"
 
 
 class Cell(models.Model):
-    cabinet_id = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
+    cabinet = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
     user_id = models.IntegerField(null=True)
     status = models.PositiveSmallIntegerField()
     hash_code = models.CharField(max_length=100, unique=True)
@@ -85,14 +85,14 @@ class Cell(models.Model):
     expired_date = models.DateTimeField(null=True, blank=True, default=None)
 
     def __str__(self):
-        return f'{self.cell_index} - Cabinet {self.cabinet_id.description}'
+        return f'{self.cell_index} - Cabinet {self.cabinet.description}'
 
 
 class CellLog(models.Model):
-    cell_id = models.ForeignKey(Cell, on_delete=models.CASCADE)
-    user_id = models.IntegerField()
+    cell = models.ForeignKey(Cell, on_delete=models.CASCADE)
+    user = models.IntegerField()
     status = models.BooleanField()
     time = models.DateTimeField(null=True, blank=True, default=timezone.now)
 
     def __str__(self):
-        return f'{self.user_id} - {self.cell_id} - {self.status} at {self.time}'
+        return f'{self.user} - {self.cell} - {self.status} at {self.time}'
