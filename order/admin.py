@@ -7,7 +7,7 @@ from order.models import OrderDetail, Order
 
 @admin.register(OrderDetail)
 class OrderDetailAdmin(admin.ModelAdmin):
-    list_display = ('cell_id', 'user_id', 'order_id', 'campaign_id', 'time_start', 'time_end', 'sub_total')
+    list_display = ('Cell_id', 'User_id', 'Order_id', 'campaign_id', 'time_start', 'time_end', 'sub_total')
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
