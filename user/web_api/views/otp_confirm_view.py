@@ -19,7 +19,7 @@ def otp_confirm(request):
     status_code = 200
     try:
         serializers = OtpConfirmSerializer(data=request.data)
-        if serializers.is_valid():
+        if serializers.is_valid(raise_exception=True):
             email = serializers.data.get('email')
             otp = serializers.data.get('otp')
             user = authenticate(email=email, otp=otp)
@@ -33,6 +33,8 @@ def otp_confirm(request):
                 status_code = 200
                 user.refresh_token = str(refresh)
                 user.save()
+            else:
+                raise User.DoesNotExist
     except User.DoesNotExist as e:
         data = {'message': "Email không tồn tại"}
         status_code = 400
