@@ -1,6 +1,6 @@
-import datetime
 from datetime import timedelta
 
+from django.utils import timezone
 from rest_framework import serializers
 from cabinet.models import Cabinet, Cell
 
@@ -26,6 +26,8 @@ class EmptyCellsRequestSerializer(serializers.Serializer):
     def validate(self, data):
         time_start = data['time_start']
         time_end = data['time_end']
+        if time_start < timezone.now():
+            raise serializers.ValidationError({'errorMessage': 'Thời gian bắt đầu phải lớn hơn thời gian hiện tại'})
         if time_start + timedelta(minutes=30) >= time_end:
-            raise serializers.ValidationError({'errorMessage': 'time range is not valid'})
+            raise serializers.ValidationError({'errorMessage': 'Khoảng thời gian không hợp lệ'})
         return data
