@@ -1,6 +1,7 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from exe201_backend.common.pagination import CustomPageNumberPagination
 from django.db.models import Q
@@ -36,6 +37,7 @@ def get_location(request):
     ]
 )
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_cabinet_location(request, *args, **kwargs):
     """
     List all cabinets follow location.
