@@ -3,5 +3,5 @@ from django.urls import path
 
 urlpatterns = [
     path('', cabinet_view.get_cabinet, name='get_cabinet'),
-    path('<int:cabinet_id>/', cabinet_view.get_cabinet_by_id, name='get_cabinet_detail'),
+    path('cabinet/', cabinet_view.get_cabinet_by_id, name='get_cabinet_detail'),
 ]

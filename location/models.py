@@ -70,7 +70,7 @@ class Location(models.Model):
     location_detail = models.CharField(max_length=100)
     location_name = models.CharField(max_length=100, blank= True)
     id = models.CharField(max_length=17, unique=True, default=location_custom_id, editable=False, primary_key=True)
-    location_name = models.CharField(max_length=100, blank=True)
+    location_name = models.CharField(max_length=100, blank=True, null=True)
 
 
 

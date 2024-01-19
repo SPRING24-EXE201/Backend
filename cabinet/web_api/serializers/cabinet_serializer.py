@@ -3,6 +3,7 @@ from cabinet.models import Cabinet, Cell
 from order.models import OrderDetail
 from datetime import datetime, timedelta
 from django.utils import timezone
+from django.db.models import Q
 
 
 class CabinetSerializer(serializers.ModelSerializer):
@@ -15,20 +16,29 @@ class CabinetSerializer(serializers.ModelSerializer):
 class CabinetDetailsSerializer(serializers.ModelSerializer):
     location_name = serializers.CharField(source='controller_id.location_id.location_name', read_only=True)
     location_detail = serializers.CharField(source='controller_id.location_id.location_detail', read_only=True)
-    empty_cell = serializers.SerializerMethodField(method_name='get_empty_cell')
+    empty_cell = serializers.SerializerMethodField(method_name='get_empty_cells')
     cabinet_type = serializers.CharField(source='cabinetType_id.type', read_only=True)
 
     class Meta:
         model = Cabinet
         fields = ['location_name', 'location_detail', 'width', 'height', 'depth', 'empty_cell', 'cabinet_type']
 
-    def get_empty_cell(self, obj):
+    def get_empty_cells(self, obj):
         now = timezone.now()
-        empty_cells = 0
-        all_cells = Cell.objects.filter(cabinet_id=obj.id)
-        for cell in all_cells:
-            if cell.expired_date < now or cell.user_id is None:
-                empty_cells += 1
-        return empty_cells
+
+        # Case 1: user_id is null and expired_date is null
+        query_user_not_exists = Q(cabinet_id=obj.id,
+                                  user_id__isnull=True,
+                                  expired_date__isnull=True
+                                  )
+
+        # Case 2: user_id is not null and expired_date is less than or equal to now
+        query_user_exists = Q(cabinet_id=obj.id,
+                              expired_date__isnull=False,
+                              expired_date__lte=now,
+                              user_id__isnull=False
+                              )
+
+        return Cell.objects.filter(query_user_exists | query_user_not_exists).count()
 
         

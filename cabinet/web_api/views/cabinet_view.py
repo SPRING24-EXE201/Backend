@@ -1,10 +1,13 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from django.http import Http404
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework.permissions import IsAuthenticated
+from django.core.exceptions import PermissionDenied
+from django.http import JsonResponse
 
 from cabinet.models import Cabinet
 from cabinet.web_api.serializers.cabinet_serializer import CabinetSerializer, CabinetDetailsSerializer
-
 
 @api_view(['GET'])
 def get_cabinet(request):
@@ -24,28 +27,25 @@ def get_cabinet(request):
         'data': data,
     })
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(name='cabinet_id', required=True, type=OpenApiTypes.INT32, location=OpenApiParameter.QUERY),        
+    ]
+)
+
 @api_view(['GET'])
-def get_cabinet_by_id(request, cabinet_id):
+@permission_classes([IsAuthenticated])
+def get_cabinet_by_id(request, *args):
     """
     Get cabinet by id
     """
-    cabinet = []
+    queryset = []
     try:
-        cabinet = Cabinet.objects.get(id=cabinet_id)
-    except Cabinet.DoesNotExist:
-        return Response({
-            'status': False,
-            'message': 'Cabinet does not exist: ' + str(cabinet_id),
-        })
-    except Exception:
-        return Response({
-            'status': False,
-            'message': "An error occurred while getting cabinet details: " + str(cabinet_id),
-        })
-
-    data = CabinetDetailsSerializer(cabinet).data
-
-    return Response({
-        'status': True,
-        'data': data,
-    })
+        queryset = Cabinet.objects.all().filter(id=request.GET.get('cabinet_id'))
+        if len(queryset) > 0:
+            data = CabinetDetailsSerializer(queryset, many=True).data
+            status_code = 200
+    finally:
+        return Response(data, status=status_code)
+    
+        
