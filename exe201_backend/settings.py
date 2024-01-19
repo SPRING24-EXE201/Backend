@@ -35,7 +35,7 @@ DEBUG = os.getenv('DEBUG', True)
 ALLOWED_HOSTS = ['*']
 
 # Application definition
- 
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -62,6 +62,7 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': timedelta(seconds=3000),
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
 }
+SESSION_COOKIE_AGE = timedelta(seconds=3000).total_seconds()
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_METHODS = (
@@ -112,7 +113,6 @@ REST_FRAMEWORK = {
     ),
 }
 
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -160,9 +160,7 @@ DATABASES = {
     }
 }
 
-
 CLIENT_URL = os.environ.get("CLIENT_URL", "http://localhost:3001")
-
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3001",
@@ -229,3 +227,8 @@ EMAIL_PORT = '587'
 EMAIL_HOST_USER = 'ibox.customerservice@gmail.com'
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
+
+AUTHENTICATION_BACKENDS = [
+    'exe201_backend.authentication_backend.AppAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend'
+]
