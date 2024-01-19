@@ -41,7 +41,7 @@ class CostVersion(models.Model):
 
 
 class Campaign(models.Model):
-    cost_version = models.ForeignKey(CostVersion, on_delete=models.CASCADE)
+    cost_version = models.CharField(max_length=100, null=False, blank=False, default='UNUSABLE')
     time_start = models.DateTimeField(null=True, blank=True, default=None)
     time_end = models.DateTimeField(null=True, blank=True, default=None)
     status = models.BooleanField()
@@ -77,7 +77,7 @@ class Cell(models.Model):
     cabinet = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
     user_id = models.IntegerField(null=True)
     status = models.PositiveSmallIntegerField()
-    hash_code = models.CharField(max_length=100)
+    hash_code = models.CharField(max_length=100, unique=True)
     cell_index = models.PositiveSmallIntegerField()
     width = models.FloatField()
     height = models.FloatField()
