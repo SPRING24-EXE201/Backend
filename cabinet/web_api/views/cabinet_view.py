@@ -45,6 +45,10 @@ def get_cabinet_by_id(request, *args):
         if len(queryset) > 0:
             data = CabinetDetailsSerializer(queryset, many=True).data
             status_code = 200
+    except Cabinet.DoesNotExist:
+        pass
+    except Exception as e:
+        pass
     finally:
         return Response(data, status=status_code)
     
