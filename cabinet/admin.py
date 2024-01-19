@@ -11,7 +11,7 @@ class CostVersionAdmin(admin.ModelAdmin):
 @admin.register(Cabinet)
 class CabinetAdmin(admin.ModelAdmin):
     list_display = (
-        'controller_id', 'cabinetType_id', 'description', 'start_using_date', 'height', 'width', 'depth', 'status',
+        'Controller_id', 'CabinetType_id', 'description', 'start_using_date', 'height', 'width', 'depth', 'status',
         'image_link', 'virtual_cabinet_id')
 
 
@@ -22,9 +22,9 @@ class CabinetTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Controller)
 class ControllerAdmin(admin.ModelAdmin):
-    list_display = ('location_id', 'name', 'kafka_id', 'topic', 'status')
+    list_display = ('Location_id', 'name', 'kafka_id', 'topic', 'status')
 
 
 @admin.register(Cell)
 class CellAdmin(admin.ModelAdmin):
-    list_display = ('cell_index', 'cabinet_id', 'width', 'height', 'depth')
+    list_display = ('cell_index', 'Cabinet_id', 'width', 'height', 'depth')

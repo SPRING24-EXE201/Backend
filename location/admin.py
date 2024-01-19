@@ -20,7 +20,7 @@ class ProvinceAdmin(admin.ModelAdmin):
 
     @admin.display(ordering='province__administrative_region', description='AdministrativeRegion')
     def get_administrative_region(self, obj):
-        return obj.administrative_region_id.name
+        return obj.AdministrativeRegion.name
 
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
