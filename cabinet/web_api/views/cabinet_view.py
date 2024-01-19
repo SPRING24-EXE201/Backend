@@ -12,8 +12,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 
 from cabinet.models import Cabinet, Cell
-from cabinet.web_api.serializers.cabinet_serializer import CabinetSerializer, EmptyCellsSerializer, \
-    EmptyCellsRequestSerializer
+from cabinet.web_api.serializers.cabinet_serializer import CabinetSerializer, EmptyCellsSerializer, EmptyCellsRequestSerializer, CabinetDetailsSerializer
 from order.models import OrderDetail
 
 @api_view(['GET'])
@@ -48,20 +47,14 @@ def get_cabinet_by_id(request, *args):
     """
     queryset = []
     try:
-        queryset = Cabinet.objects.all().filter(id=request.GET.get('cabinet_id'))
-        if len(queryset) > 0:
-            data = CabinetDetailsSerializer(queryset, many=True).data
-            status_code = 200
+        queryset = Cabinet.objects.all().filter(id=request.GET.get('cabinet_id'))                    
     except Cabinet.DoesNotExist:
         pass
     except Exception as e:
         pass
     finally:
-        return Response(data, status=status_code)
-    
-        
-    })
-
+        data = CabinetDetailsSerializer(queryset, many=True).data  
+        return Response(data)
 
 @extend_schema(
     parameters=[

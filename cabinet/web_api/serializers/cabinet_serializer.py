@@ -18,14 +18,14 @@ class CabinetSerializer(serializers.ModelSerializer):
 
 
 class CabinetDetailsSerializer(serializers.ModelSerializer):
-    location_name = serializers.CharField(source='controller_id.location_id.location_name', read_only=True)
-    location_detail = serializers.CharField(source='controller_id.location_id.location_detail', read_only=True)
+    location_name = serializers.CharField(source='controller.location.location_name', read_only=True)
+    location_detail = serializers.CharField(source='controller.location.location_detail', read_only=True)
     empty_cell = serializers.SerializerMethodField(method_name='get_empty_cells')
-    cabinet_type = serializers.CharField(source='cabinetType_id.type', read_only=True)
+    cabinet_type = serializers.CharField(source='cabinet_type.type', read_only=True)
 
     class Meta:
         model = Cabinet
-        fields = ['location_name', 'location_detail', 'width', 'height', 'depth', 'empty_cell', 'cabinet_type']
+        fields = ['location_name', 'location_detail', 'width', 'height', 'depth', 'empty_cell', 'description', 'cabinet_type']
 
     def get_empty_cells(self, obj):
         now = timezone.now()
