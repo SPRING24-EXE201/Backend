@@ -1,23 +1,107 @@
 from rest_framework_simplejwt.tokens import UntypedToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django.http import HttpResponse
 from order.pagination import CustomPageNumberPagination
-
 from order.models import Order
 from order.web_api.serializers.order_serializer import OrderSerializer, OrderByUserSerializer
+from rest_framework.permissions import IsAuthenticated
 
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def order_detail(request, order_id):
+    try:
+        if request.method == 'GET':
+            if order_id:
+                try:
+                    order = Order.objects.get(order_id=order_id)
+                except Order.DoesNotExist:
+                    return Response({'error': 'Order not found'}, status=404)
+                serializer = OrderSerializer(order)
+                return Response(serializer.data, status=200)
+        elif request.method == 'PUT':
+            if order_id:
+                serializer = OrderSerializer(data=request.data)
+                if serializer.is_valid():
+                    try:
+                        # Check if the order exists
+                        order = Order.objects.get(order_id=order_id)
+                        # Update the order
+                        serializer.update(order, serializer.validated_data)
+                        return Response({'message': 'Order updated successfully!', 'order': serializer.data}, status=200)
+                    except Order.DoesNotExist:
+                        return Response({'error': 'Order with id {} not found'.format(order_id)}, status=404)
+                else:
+                    return Response(serializer.errors, status=400)
+        elif request.method == 'DELETE':
+            if order_id:
+                try:
+                    order = Order.objects.get(order_id=order_id)
+                    if order.status is None:
+                        return Response({'error': 'Order status is None, cannot delete'}, status=400)
+                    elif order.status:
+                        order.status = False
+                        order.save()
+                        return Response({'message': 'Order deleted successfully!'}, status=200)
+                    else:
+                        return Response({'error': 'Order cannot be deleted because its status is already False'},
+                                        status=400)
+                except Order.DoesNotExist:
+                    return Response({'error': 'Order not found'}, status=404)
+            else:
+                Order.objects.all().update(status=False)
+                return Response({'message': 'All orders deleted successfully!'}, status=200)
+    finally:
+        pass
 
 @api_view(['GET', 'POST'])
-def order_list(request):
+@permission_classes([IsAuthenticated])
+def handle_orders(request):
     if request.method == 'GET':
-        orders = Order.objects.all().order_by('order_detail__time_start')
-        orders = Order.objects.filter(status=True).order_by('order_detail__time_start')
-        serializer = OrderSerializer(orders, many=True)
-        return Response(serializer.data)
+        # Get the token from the request headers
+        token = request.headers.get('Authorization')
+
+        # Remove 'Bearer ' from the token
+        token = token.split(' ')[1]
+
+        try:
+            # Decode the token to get the user_id
+            user_id = UntypedToken(token).payload['user_id']
+        except (InvalidToken, TokenError):
+            return Response({'error': 'Invalid token'}, status=400)
+
+        try:
+            # Get all Order objects related to the user_id
+            orders = Order.objects.filter(orderdetail__user_id=user_id).order_by('orderdetail__time_start')
+
+            if not orders.exists():
+                return Response({'error': 'Order not found'}, status=404)
+
+            paginator = CustomPageNumberPagination()
+
+            result_page = paginator.paginate_queryset(orders, request)
+
+            # Serialize the data
+            serializer = OrderByUserSerializer(result_page, many=True)
+
+            # Return the serialized data
+            return paginator.get_paginated_response(serializer.data)
+        except Exception as e:
+            return Response({'error': 'Something went wrong'}, status=400)
     elif request.method == 'POST':
+        # Get the token from the request headers
+        token = request.headers.get('Authorization')
+
+        # Remove 'Bearer ' from the token
+        token = token.split(' ')[1]
+
+        try:
+            # Decode the token to get the user_id
+            user_id = UntypedToken(token).payload['user_id']
+        except (InvalidToken, TokenError):
+            return Response({'error': 'Invalid token'}, status=400)
+
         order_id = request.data.get('order_id')
         total_amount = request.data.get('total_amount')
         payment_method = request.data.get('payment_method')
@@ -41,89 +125,4 @@ def order_list(request):
             status=status
         )
 
-        return Response({'message': 'Order created successfully!'})
-
-
-@api_view(['GET', 'PUT', 'DELETE'])
-def order_detail(request, order_id):
-    try:
-        if request.method == 'GET':
-            if order_id:
-                try:
-                    order = Order.objects.get(order_id=order_id)
-                except Order.DoesNotExist:
-                    return Response({'error': 'Order not found'}, status=404)
-                serializer = OrderSerializer(order)
-                return Response(serializer.data)
-        elif request.method == 'PUT':
-            if order_id:
-                serializer = OrderSerializer(data=request.data)
-                if serializer.is_valid():
-                    try:
-                        # Check if the order exists
-                        order = Order.objects.get(order_id=order_id)
-                        # Update the order
-                        serializer.update(order, serializer.validated_data)
-                        return Response({'message': 'Order updated successfully!', 'order': serializer.data})
-                    except Order.DoesNotExist:
-                        return Response({'error': 'Order with id {} not found'.format(order_id)}, status=404)
-                else:
-                    return Response(serializer.errors, status=400)
-        elif request.method == 'DELETE':
-            if order_id:
-                try:
-                    order = Order.objects.get(order_id=order_id)
-                    if order.status is None:
-                        return Response({'error': 'Order status is None, cannot delete'}, status=400)
-                    elif order.status:
-                        order.status = False
-                        order.save()
-                        return Response({'message': 'Order deleted successfully!'}, status=200)
-                    else:
-                        return Response({'error': 'Order cannot be deleted because its status is already False'},
-                                        status=400)
-                except Order.DoesNotExist:
-                    return Response({'error': 'Order not found'}, status=404)
-            else:
-                Order.objects.all().update(status=False)
-                return Response({'message': 'All orders deleted successfully!'})
-        else:
-            return HttpResponse(status=405)
-    except Exception as e:
-        return Response({'error': str(e)}, status=500)
-    finally:
-        # This block will be executed regardless of the try block's outcome.
-        # You can put cleanup code here, if needed.
-        pass
-
-
-@api_view(['GET'])
-def get_orders_by_user(request):
-    # Get the token from the request headers
-    token = request.headers.get('Authorization')
-
-    # Remove 'Bearer ' from the token
-    token = token.split(' ')[1]
-
-    try:
-        # Decode the token to get the user_id
-        user_id = UntypedToken(token).payload['user_id']
-    except (InvalidToken, TokenError):
-        return Response({'error': 'Invalid token'}, status=400)
-
-    # Get all Order objects related to the user_id
-    orders = Order.objects.filter(order_detail__user_id=user_id).order_by('order_detail__time_start')
-
-    paginator = CustomPageNumberPagination()
-
-    result_page = paginator.paginate_queryset(orders, request)
-
-    # If no orders are found, return an empty list
-    if not orders.exists():
-        return Response([])
-
-    # Serialize the data
-    serializer = OrderByUserSerializer(result_page, many=True)
-
-    # Return the serialized data
-    return paginator.get_paginated_response(serializer.data)
+        return Response({'message': 'Order created successfully!'}, status=201)

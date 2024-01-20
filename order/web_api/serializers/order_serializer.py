@@ -15,11 +15,11 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = ['order_id', 'total_amount', 'payment_method', 'order_date', 'status']
 
 class OrderDetailSerializer(serializers.ModelSerializer):
-    order_id = serializers.ReadOnlyField(source='order.order_id')
-    cell_id = serializers.ReadOnlyField(source='cell_id.id')
-    cell_index = serializers.ReadOnlyField(source='cell_id.cell_index')
-    cabinet_description = serializers.ReadOnlyField(source='cell_id.cabinet_id.description')
-    location_detail = serializers.ReadOnlyField(source='cell_id.cabinet_id.controller_id.location_id.location_detail')
+    order_id = serializers.CharField(source='order.order_id', read_only=True)
+    cell_id = serializers.CharField(source='cell.id', read_only=True)
+    cell_index = serializers.CharField(source='cell.cell_index', read_only=True)
+    cabinet_description = serializers.CharField(source='cell.cabinet.description', read_only=True)
+    location_detail = serializers.CharField(source='cell.cabinet.controller.location.location_detail', read_only=True)
 
     class Meta:
         model = OrderDetail
@@ -41,22 +41,22 @@ class OrderByUserSerializer(serializers.ModelSerializer):
         fields = ['order_id', 'order_detail_id', 'cell_id', 'cell_index', 'cabinet_description', 'location_detail', 'order_date', 'start_date', 'end_date']
 
     def get_order_detail_id(self, obj):
-        return obj.order_detail.first().id
+        return obj.orderdetail_set.first().id
 
     def get_cell_id(self, obj):
-        return obj.order_detail.first().cell_id.id
+        return obj.orderdetail_set.first().cell.id
 
     def get_cell_index(self, obj):
-        return obj.order_detail.first().cell_id.cell_index
+        return obj.orderdetail_set.first().cell.cell_index
 
     def get_cabinet_description(self, obj):
-        return obj.order_detail.first().cell_id.cabinet_id.description
+        return obj.orderdetail_set.first().cell.cabinet.description
 
     def get_location_detail(self, obj):
-        return obj.order_detail.first().cell_id.cabinet_id.controller_id.location_id.location_detail
+        return obj.orderdetail_set.first().cell.cabinet.controller.location.location_detail
 
     def get_start_date(self, obj):
-        return obj.order_detail.first().time_start
+        return obj.orderdetail_set.first().time_start
 
     def get_end_date(self, obj):
-        return obj.order_detail.first().time_end
+        return obj.orderdetail_set.first().time_end

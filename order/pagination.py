@@ -14,7 +14,7 @@ class CustomPageNumberPagination(pagination.PageNumberPagination):
     def get_next_link(self):
         if not self.page.has_next():
             return None
-        url = self.request.build_absolute_uri(reverse('order_by_user'))
+        url = self.request.build_absolute_uri(reverse('handle_orders'))
         page_size = self.get_page_size(self.request)
         page_number = self.page.next_page_number()
         return f'{url}?{urlencode({"page_size": page_size, "page": page_number})}'
