@@ -35,7 +35,7 @@ def get_cabinet(request):
     ]
 )
 @api_view(['GET'])
-#@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated])
 def get_cabinet_by_id(request, *args):
     """
     Get cabinet by id
