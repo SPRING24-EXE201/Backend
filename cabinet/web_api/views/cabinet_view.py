@@ -1,6 +1,5 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from jsonschema.exceptions import ValidationError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -9,7 +8,6 @@ from cabinet.web_api.serializers.cabinet_serializer import CabinetSerializer, Em
     EmptyCellsRequestSerializer
 from order.models import OrderDetail
 from rest_framework.response import Response
-from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 from drf_spectacular.utils import extend_schema
 from django.utils import timezone
@@ -32,7 +30,7 @@ def get_cabinet(request):
     except Cabinet.DoesNotExist:
         pass
 
-    data = CabinetByLocation(cabinet, many=True).data
+    data = CabinetSerializer(cabinet, many=True).data
 
     return Response({
         'success': True,
@@ -76,18 +74,19 @@ def get_empty_cells(request, cabinet_id):
 
     data = EmptyCellsSerializer(empty_cells, many=True).data
     return Response(data)
+
 def euclidean_distance(x1, y1, x2, y2):
     return sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_cabinet_by_location(request):
+def get_recent_cabinet_by_location(request):
     try:
         pos_x = request.GET.get('pos_x', None)
         pos_y = request.GET.get('pos_y', None)
 
         if pos_x is None and pos_y is None:
-            cabinets = Cabinet.objects.all()
+            cabinets = Cabinet.objects.all().filter(status=True)
         else:
             if pos_x is None or pos_y is None:
                 raise Exception('Missing coordinates')
@@ -102,16 +101,15 @@ def get_cabinet_by_location(request):
         if pos_x is not None and pos_y is not None:
             cabinets_distances = []
             for cabinet in cabinets:
-                distance = euclidean_distance(float(pos_x), float(pos_y), cabinet.controller_id.location_id.longitude,
-                                                cabinet.controller_id.location_id.latitude)
+                distance = euclidean_distance(float(pos_x), float(pos_y), cabinet.controller.location.longitude, cabinet.controller.location.latitude)
                 cabinets_distances.append((cabinet, distance))
                 status_code = 200
 
-        # Sort cabinets by distance
-        cabinets_distances.sort(key=itemgetter(1))
+            # Sort cabinets by distance
+            cabinets_distances.sort(key=itemgetter(1))
 
-        # Replace cabinets with sorted list
-        cabinets = [cabinet_distance[0] for cabinet_distance in cabinets_distances]
+            # Replace cabinets with sorted list
+            cabinets = [cabinet_distance[0] for cabinet_distance in cabinets_distances]
 
         # Create a pagination instance
         paginator = CustomPageNumberPagination()
@@ -123,13 +121,7 @@ def get_cabinet_by_location(request):
         return paginator.get_paginated_response(serializer.data)
     except Cabinet.DoesNotExist:
         data = {'message': 'Cabinet does not exist'}
-        status_code = 400
-    except PermissionDenied as e:
-        data = {'message': str(e)}
-        status_code = 403
-    except Exception as e:
-        data = {'message': 'System error'}
-        status_code = 500
+        status_code = 404
     finally:
         if 'data' in locals() and 'status_code' in locals():
             return JsonResponse(data, status=status_code, safe=False)
