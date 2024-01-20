@@ -1,19 +1,14 @@
-from rest_framework.decorators import api_view, permission_classes
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from jsonschema.exceptions import ValidationError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework.permissions import IsAuthenticated
-from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse
 
 from cabinet.models import Cabinet, Cell
-from cabinet.web_api.serializers.cabinet_serializer import CabinetSerializer, EmptyCellsSerializer, EmptyCellsRequestSerializer, CabinetDetailsSerializer
+from cabinet.web_api.serializers.cabinet_serializer import EmptyCellsSerializer, EmptyCellsRequestSerializer, \
+    CabinetDetailsSerializer
 from order.models import OrderDetail
+
 
 @api_view(['GET'])
 def get_cabinet(request):
@@ -33,28 +28,39 @@ def get_cabinet(request):
         'data': data,
     })
 
+
 @extend_schema(
     parameters=[
-        OpenApiParameter(name='cabinet_id', required=True, type=OpenApiTypes.INT32, location=OpenApiParameter.QUERY),        
+        OpenApiParameter(name='cabinet_id', required=True, type=OpenApiTypes.INT32, location=OpenApiParameter.QUERY),
     ]
 )
-
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+#@permission_classes([IsAuthenticated])
 def get_cabinet_by_id(request, *args):
     """
     Get cabinet by id
     """
     queryset = []
     try:
-        queryset = Cabinet.objects.all().filter(id=request.GET.get('cabinet_id'))                    
+        queryset = Cabinet.objects.all().get(id=request.GET.get('cabinet_id'))
     except Cabinet.DoesNotExist:
-        pass
-    except Exception as e:
-        pass
+        return Response({
+            'status_code': 404,
+            'message': 'Tủ không tồn tại',
+        })
+    except Exception:
+        return Response({
+            'status_code': 500,
+            'message': 'Có lỗi xảy ra',
+        })
     finally:
-        data = CabinetDetailsSerializer(queryset, many=True).data  
-        return Response(data)
+        if queryset:
+            data = CabinetDetailsSerializer(queryset).data
+            return Response({
+                'status_code': 200,
+                'data': data,
+            })
+
 
 @extend_schema(
     parameters=[

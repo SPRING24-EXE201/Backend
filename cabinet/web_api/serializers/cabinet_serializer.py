@@ -1,12 +1,8 @@
 from datetime import timedelta
-
+from django.db.models import Q
 from django.utils import timezone
 from rest_framework import serializers
-from cabinet.models import Cabinet, Cell
-from order.models import OrderDetail
-from datetime import datetime, timedelta
-from django.utils import timezone
-from django.db.models import Q
+
 from cabinet.models import Cabinet, Cell
 
 
@@ -46,7 +42,6 @@ class CabinetDetailsSerializer(serializers.ModelSerializer):
         return Cell.objects.filter(query_user_exists | query_user_not_exists).count()
 
         
-
 class EmptyCellsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cell
