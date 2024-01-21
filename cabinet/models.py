@@ -31,9 +31,9 @@ class CabinetType(models.Model):
 class CostVersion(models.Model):
     version = models.CharField(max_length=100)
     from_hour = models.FloatField()
-    to_hour = models.FloatField()
+    to_hour = models.FloatField(null=True)
     cost = models.FloatField()
-    unit = models.CharField(max_length=100)
+    unit = models.DurationField()
     status = models.BooleanField()
 
     def __str__(self):
@@ -63,9 +63,12 @@ class Cabinet(models.Model):
     image_link = models.CharField(max_length=100)
     virtual_cabinet_id = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.description
+
 
 class CampaignCabinet(models.Model):
-    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='campaign')
     cabinet = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
     description = models.CharField(max_length=100)
 
