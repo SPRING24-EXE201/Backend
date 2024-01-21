@@ -17,12 +17,12 @@ class CostVersionAdmin(admin.ModelAdmin):
 class CabinetAdmin(admin.ModelAdmin):
     list_display = (
         'controller_id', 'cabinet_type_id', 'description', 'start_using_date', 'height', 'width', 'depth', 'status',
-        'image_link', 'virtual_cabinet_id')
+        'image_link')
 
 
 @admin.register(CabinetType)
 class CabinetTypeAdmin(admin.ModelAdmin):
-    list_display = ('type', 'description', 'status', 'image_link', 'cost_per_unit')
+    list_display = ('type', 'description', 'status', 'image_link')
 
 
 @admin.register(Controller)

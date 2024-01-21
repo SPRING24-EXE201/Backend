@@ -22,7 +22,6 @@ class CabinetType(models.Model):
     description = models.CharField(max_length=100)
     status = models.BooleanField()
     image_link = models.CharField(max_length=100)
-    cost_per_unit = models.FloatField()
 
     def __str__(self):
         return self.type
@@ -61,7 +60,8 @@ class Cabinet(models.Model):
     depth = models.FloatField()
     status = models.BooleanField()
     image_link = models.CharField(max_length=100)
-    virtual_cabinet_id = models.CharField(max_length=100)
+    column_number = models.IntegerField(default=1)
+    row_number = models.IntegerField(default=1)
 
     def __str__(self):
         return self.description
@@ -78,14 +78,12 @@ class CampaignCabinet(models.Model):
 
 class Cell(models.Model):
     cabinet = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
-    user_id = models.IntegerField(null=True)
     status = models.PositiveSmallIntegerField()
     hash_code = models.CharField(max_length=100, unique=True)
     cell_index = models.PositiveSmallIntegerField()
     width = models.FloatField()
     height = models.FloatField()
     depth = models.FloatField()
-    expired_date = models.DateTimeField(null=True, blank=True, default=None)
 
     def __str__(self):
         return f'{self.cell_index} - Cabinet {self.cabinet.description}'
