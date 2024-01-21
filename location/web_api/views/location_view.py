@@ -64,7 +64,8 @@ def get_cabinet_location(request, *args, **kwargs):
         paginated_queryset = paginator.paginate_queryset(queryset, request)
         if paginated_queryset is not None:
             serializer = CabinetLocationSerializer(paginated_queryset, many=True)
-            return paginator.get_paginated_response(serializer.data)
+            response = [location for location in serializer.data if location['cabinets'] is not None]
+            return paginator.get_paginated_response(response)
     return Response(status=404, data={
                     'message': 'Không tìm thấy tủ phù hợp'
                     })
