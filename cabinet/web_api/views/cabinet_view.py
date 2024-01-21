@@ -57,8 +57,8 @@ def get_empty_cells(request, cabinet_id):
                                                          time_start__lte=needed_time_end)
             # get cell_id of not empty cells
             not_empty_cells = not_empty_cells.values_list('cell_id__id', flat=True).distinct()
-            empty_cells = Cell.objects.filter(cabinet_id__id=cabinet_id,
-                                              cabinet_id__status=True,
+            empty_cells = Cell.objects.filter(cabinet__id=cabinet_id,
+                                              cabinet__status=True,
                                               status__gt=0).exclude(id__in=not_empty_cells)
         except Cell.DoesNotExist:
             pass

@@ -1,12 +1,17 @@
 from django.contrib import admin
 
-from cabinet.models import CostVersion, Cell, Cabinet, CabinetType, Controller
+from cabinet.models import CostVersion, Cell, Cabinet, CabinetType, Controller, Campaign, CampaignCabinet
+
 
 # Register your models here.
 @admin.register(CostVersion)
 class CostVersionAdmin(admin.ModelAdmin):
     list_display = ('version', 'cost', 'from_hour', 'to_hour')
 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(CostVersionAdmin, self).get_form(request, obj, **kwargs)
+        form.base_fields['to_hour'].required = False
+        return form
 
 @admin.register(Cabinet)
 class CabinetAdmin(admin.ModelAdmin):
@@ -28,3 +33,19 @@ class ControllerAdmin(admin.ModelAdmin):
 @admin.register(Cell)
 class CellAdmin(admin.ModelAdmin):
     list_display = ('cell_index', 'cabinet_id', 'width', 'height', 'depth')
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(CellAdmin, self).get_form(request, obj, **kwargs)
+        form.base_fields['user_id'].required = False
+        form.base_fields['expired_date'].required = False
+        return form
+
+
+@admin.register(Campaign)
+class CampaignAdmin(admin.ModelAdmin):
+    list_display = ('cost_version', 'time_start', 'time_end', 'description')
+
+
+@admin.register(CampaignCabinet)
+class CampaignCabinetAdmin(admin.ModelAdmin):
+    list_display = ('cabinet', 'campaign', 'description')

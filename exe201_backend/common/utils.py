@@ -1,9 +1,15 @@
+import datetime
 import random
 
+from datetimerange import DateTimeRange
 from django.core.cache import cache
-from django.core.mail import send_mail, EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives
+from django.utils import timezone
+from pytz import timezone
 
+from cabinet.models import CostVersion, Cell
 from exe201_backend.common.constants import SystemConstants
+from order.models import OrderDetail
 
 
 class Utils:
@@ -28,15 +34,127 @@ class Utils:
             </div>
           </div>
         </div>"""
-        try:
-            cache.set(key=to_email, value=otp_code, timeout=SystemConstants.otp_timeout)
-         
-            msg = EmailMultiAlternatives(subject, html_body, SystemConstants.from_email_address, [to_email])
-            msg.content_subtype = 'html'
-            # Return number of message send success
-            is_success = msg.send()
-            if is_success == 0:
-                return False
-            return True
-        except Exception as e:
+        cache.set(key=to_email, value=otp_code, timeout=SystemConstants.otp_timeout)
+
+        msg = EmailMultiAlternatives(subject, html_body, SystemConstants.from_email_address, [to_email])
+        msg.content_subtype = 'html'
+        # Return number of message send success
+        is_success = msg.send()
+        if is_success == 0:
             return False
+        return True
+
+    @staticmethod
+    def calc_total_cost(campaign, order_time_start, order_time_end):
+        """
+        Calculate total cost in a range of campaign
+        :param campaign:
+        :param order_time_start:
+        :param order_time_end:
+        :return: total_cost of an order
+        :exception: CostVersion.DoesNotExist
+        """
+        last_hour = (order_time_end - order_time_start).total_seconds() / 3600.0
+        total_cost = 0
+        cost_versions = CostVersion.objects.filter(version=campaign.cost_version,
+                                                   from_hour__lte=last_hour,
+                                                   status=True).order_by('from_hour')
+        if not cost_versions:
+            raise CostVersion.DoesNotExist
+        for version in cost_versions:
+            from_hour = version.from_hour
+            to_hour = version.to_hour
+            # Normal version (from_hour, to_hour not null)
+            if to_hour is not None:
+                # Check last_hour is in range
+                to_hour = last_hour if last_hour <= to_hour else to_hour
+            # Last version case (to_hour = null)
+            else:
+                to_hour = last_hour
+            duration_in_version = datetime.timedelta(hours=to_hour) - datetime.timedelta(hours=from_hour)
+            total_cost += (duration_in_version.total_seconds() / version.unit.total_seconds()) * version.cost
+
+        return round(total_cost, 0)
+
+    @staticmethod
+    def check_valid_cells(data):
+        """
+        Get valid cell to rent in timerange
+        :param data: list dict:
+            [
+                'hash_code_value':{
+                                    'time_start': datetime,
+                                    'time_end': datetime
+                                  }
+            ]
+        :return: all valid cells, invalid cells in range
+        :exception Cell.DoesNotExist
+        """
+
+        valid_cells = []
+        invalid_cells = []
+        try:
+            order_detail_data = OrderDetail.objects.filter(cell__hash_code__in=data.keys())
+            if not order_detail_data:
+                raise OrderDetail.DoesNotExist
+            for key, value in data.items():
+                needed_time_range = DateTimeRange(value['time_start'],
+                                                  value['time_end'],
+                                                  timezone=SystemConstants.timezone)
+                order_details = [detail for detail in order_detail_data if detail.cell.hash_code == key]
+                if not order_details:
+                    raise OrderDetail.DoesNotExist
+                overlap_details = []
+                for time_detail in order_details:
+                    detail_time_range = DateTimeRange(time_detail.time_start,
+                                                      time_detail.time_end,
+                                                      timezone=SystemConstants.timezone)
+                    if needed_time_range.is_intersection(detail_time_range):
+                        overlap_details.append(needed_time_range.intersection(detail_time_range))
+                if len(overlap_details) == 0:
+                    valid_cell = order_details[0].cell.__dict__
+                    valid_cell['time_start'] = value['time_start']
+                    valid_cell['time_end'] = value['time_end']
+                    valid_cells.append(valid_cell)
+                else:
+                    invalid_cells.append(key)
+        except OrderDetail.DoesNotExist:
+            valid_cells = Cell.objects.filter(hash_code__in=list(data.keys()),
+                                              status_gt=0)
+            if not valid_cells:
+                raise Cell.DoesNotExist
+            valid_cells = [cell.__dict__.update({
+                                                'time_start': data[cell.hash_code]['time_start'],
+                                                'time_end': data[cell.hash_code]['time_end']
+                                                }) for cell in valid_cells]
+        return {
+            'valid_cells': valid_cells,
+            'invalid_cells': invalid_cells
+        }
+
+    @staticmethod
+    def get_empty_cells_by_order_details(order_details, cell_id_list):
+        """
+        1. Check the cell is empty now
+        2. Update user has own cells
+        :param cell_id_list: list of cell_id to check
+        :param order_details: list of tuples order_details 's information:
+                [(cell_id, user_id, time_start, time_end)]
+        :return: empty cells number
+        """
+        empty_cells_num = 0
+        for cell_id in cell_id_list:
+            cell = Cell.objects.get(id=cell_id)
+            cell_time_ordered = [detail for detail in order_details
+                                 if detail[0] == cell_id and (detail[2] <= timezone.now() <= detail[3])]
+            # empty cell
+            if not cell_time_ordered:
+                cell.user_id = None
+                cell.expired_date = None
+                empty_cells_num += 1
+            # not empty cell
+            else:
+                cell.user_id = cell_time_ordered[0][1]
+                cell.expired_date = cell_time_ordered[0][3]
+            cell.save()
+        return empty_cells_num

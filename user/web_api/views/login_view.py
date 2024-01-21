@@ -7,7 +7,7 @@ from user.web_api.serializers.login_serializer import LoginSerializer
 
 
 @extend_schema(
-    request=LoginSerializer
+    request={'application/json': LoginSerializer}
 )
 @api_view(['POST'])
 def login(request):
@@ -18,5 +18,4 @@ def login(request):
             return Response({
                 'Message': 'Đã gửi mail',
             })
-        return Response(status=400)
     return Response(status=400)
