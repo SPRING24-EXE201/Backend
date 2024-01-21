@@ -5,7 +5,6 @@ from datetimerange import DateTimeRange
 from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.utils import timezone
-from pytz import timezone
 
 from cabinet.models import CostVersion, Cell
 from exe201_backend.common.constants import SystemConstants
@@ -94,7 +93,7 @@ class Utils:
         valid_cells = []
         invalid_cells = []
         try:
-            order_detail_data = OrderDetail.objects.filter(cell__hash_code__in=data.keys())
+            order_detail_data = OrderDetail.objects.filter(cell__hash_code__in=data.keys(), order__status=True)
             if not order_detail_data:
                 raise OrderDetail.DoesNotExist
             for key, value in data.items():
@@ -124,37 +123,48 @@ class Utils:
             if not valid_cells:
                 raise Cell.DoesNotExist
             valid_cells = [cell.__dict__.update({
-                                                'time_start': data[cell.hash_code]['time_start'],
-                                                'time_end': data[cell.hash_code]['time_end']
-                                                }) for cell in valid_cells]
+                'time_start': data[cell.hash_code]['time_start'],
+                'time_end': data[cell.hash_code]['time_end']
+            }) for cell in valid_cells]
         return {
             'valid_cells': valid_cells,
             'invalid_cells': invalid_cells
         }
 
     @staticmethod
-    def get_empty_cells_by_order_details(order_details, cell_id_list):
+    def get_empty_cells_by_order_details(cell_id_list):
         """
         1. Check the cell is empty now
-        2. Update user has own cells
         :param cell_id_list: list of cell_id to check
-        :param order_details: list of tuples order_details 's information:
-                [(cell_id, user_id, time_start, time_end)]
         :return: empty cells number
         """
-        empty_cells_num = 0
-        for cell_id in cell_id_list:
-            cell = Cell.objects.get(id=cell_id)
-            cell_time_ordered = [detail for detail in order_details
-                                 if detail[0] == cell_id and (detail[2] <= timezone.now() <= detail[3])]
-            # empty cell
-            if not cell_time_ordered:
-                cell.user_id = None
-                cell.expired_date = None
-                empty_cells_num += 1
-            # not empty cell
-            else:
-                cell.user_id = cell_time_ordered[0][1]
-                cell.expired_date = cell_time_ordered[0][3]
-            cell.save()
-        return empty_cells_num
+        if not cell_id_list:
+            return 0
+        now = timezone.now()
+        empty_cells = (OrderDetail.objects.filter(cell__id__in=cell_id_list,
+                                                  time_start__lte=now,
+                                                  time_end__gte=now,
+                                                  order__status=True)
+                       .values_list('cell', flat=True)).distinct()
+        return len(empty_cells)
+
+    @staticmethod
+    def get_user_own_cell(cell_id):
+        """
+        Get user being in possession of cell
+        :param cell_id: int
+        :return: User
+        """
+        user = None
+        if not cell_id:
+            return None
+        now = timezone.now()
+        try:
+            cell_order_now = OrderDetail.objects.get(cell__id=cell_id,
+                                                     time_start__lte=now,
+                                                     time_end__gte=now,
+                                                     order__status=True)
+            user = cell_order_now.user
+        except OrderDetail.DoesNotExist:
+            user = None
+        return user

@@ -32,8 +32,8 @@ def get_location(request):
 @extend_schema(
     parameters=[
         OpenApiParameter(name='search_query', required=False, type=OpenApiTypes.STR, location=OpenApiParameter.QUERY),
-        OpenApiParameter(name='page_size', required=True, type=OpenApiTypes.INT32, location=OpenApiParameter.QUERY),
-        OpenApiParameter(name='page', required=True, type=OpenApiTypes.INT32, location=OpenApiParameter.QUERY)
+        OpenApiParameter(name='page_size', required=False, type=OpenApiTypes.INT32, location=OpenApiParameter.QUERY),
+        OpenApiParameter(name='page', required=False, type=OpenApiTypes.INT32, location=OpenApiParameter.QUERY)
     ]
 )
 @api_view(['GET'])
@@ -48,9 +48,7 @@ def get_cabinet_location(request, *args, **kwargs):
     except Location.DoesNotExist:
         pass
     search_query = request.GET.get('search_query')
-    page = request.GET.get('page')
-    page_size = request.GET.get('page_size')
-    if search_query is not None:
+    if search_query:
         queryset = queryset.filter(
             Q(ward__name__icontains=search_query) |
             Q(location_detail__icontains=search_query) |
@@ -58,13 +56,13 @@ def get_cabinet_location(request, *args, **kwargs):
             Q(ward__district__province__name__icontains=search_query)
         )
     if queryset:
+        serializer = CabinetLocationSerializer(queryset, many=True)
+        response_data = [location for location in serializer.data if location['cabinets'] is not None]
         pagination_class = CustomPageNumberPagination
         paginator = pagination_class()
-        paginator.page_size = int(page_size)
-        paginated_queryset = paginator.paginate_queryset(queryset, request)
-        if paginated_queryset is not None:
-            serializer = CabinetLocationSerializer(paginated_queryset, many=True)
-            return paginator.get_paginated_response(serializer.data)
+        paginated_response = paginator.paginate_queryset(response_data, request)
+        return paginator.get_paginated_response(paginated_response)
+
     return Response(status=404, data={
-                    'message': 'Không tìm thấy tủ phù hợp'
-                    })
+        'message': 'Không tìm thấy tủ phù hợp'
+    })
