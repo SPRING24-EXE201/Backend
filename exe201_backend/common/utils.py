@@ -145,7 +145,7 @@ class Utils:
                                                   time_start__lte=now,
                                                   time_end__gte=now,
                                                   order__status=True)
-                       .values_list('cell', flat=True))
+                       .values_list('cell', flat=True)).distinct()
         return len(empty_cells)
 
     @staticmethod

@@ -1,7 +1,7 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from jsonschema.exceptions import ValidationError
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -46,24 +46,32 @@ def get_empty_cells(request, cabinet_id):
     request.query_params.appendlist('cabinet_id', cabinet_id)
     serializer = EmptyCellsRequestSerializer(data=request.query_params)
     empty_cells = []
+    cabinet = None
+    try:
+        cabinet = Cabinet.objects.get(id=cabinet_id)
+    except Cabinet.DoesNotExist:
+        raise ValidationError({
+            'message': 'Không tìm thấy tủ'
+        })
     if serializer.is_valid(raise_exception=True):
         needed_time_start = serializer.data.get('time_start')
         needed_time_end = serializer.data.get('time_end')
         cabinet_id = serializer.data.get('cabinet_id')
-        try:
-            # not empty cells condition:
-            # (needed_time_start <= order_detail_time_end) and (order_detail_time_start<= needed_time_end)
-            not_empty_cells = OrderDetail.objects.filter(time_end__gte=needed_time_start,
-                                                         time_start__lte=needed_time_end)
-            # get cell_id of not empty cells
-            not_empty_cells = not_empty_cells.values_list('cell_id__id', flat=True).distinct()
-            empty_cells = Cell.objects.filter(cabinet__id=cabinet_id,
-                                              cabinet__status=True,
-                                              status__gt=0).exclude(id__in=not_empty_cells)
-        except Cell.DoesNotExist:
-            pass
-        except OrderDetail.DoesNotExist:
-            pass
+        # not empty cells condition:
+        # (needed_time_start <= order_detail_time_end) and (order_detail_time_start<= needed_time_end)
+        not_empty_cells = OrderDetail.objects.filter(time_end__gte=needed_time_start,
+                                                     time_start__lte=needed_time_end,
+                                                     order__status=True)
+        # get cell_id of not empty cells
+        not_empty_cells = not_empty_cells.values_list('cell__id', flat=True).distinct()
+        empty_cells = Cell.objects.filter(cabinet__id=cabinet_id,
+                                          cabinet__status=True,
+                                          status__gt=0).exclude(id__in=not_empty_cells)
 
-    data = EmptyCellsSerializer(empty_cells, many=True).data
-    return Response(data)
+    empty_cells_data = EmptyCellsSerializer(empty_cells, many=True).data
+
+    return Response({
+        'columns': cabinet.column_number,
+        'rows': cabinet.row_number,
+        'empty_cells': empty_cells_data
+    })

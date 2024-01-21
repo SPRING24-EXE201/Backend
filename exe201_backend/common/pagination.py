@@ -12,6 +12,8 @@ class CustomPageNumberPagination(pagination.PageNumberPagination):
     def paginate_queryset(self, queryset, request, view=None):
         if 'page_size' in request.query_params:
             self.page_size = int(request.query_params['page_size'])
+        if 'page' not in request.query_params:
+            request.query_params['page'] = 1
         return super().paginate_queryset(queryset, request, view)
 
     def get_paginated_response(self, data):
