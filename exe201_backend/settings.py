@@ -172,7 +172,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'exe201_backend.wsgi.application'
-
+SERVICE_BUS_CON = "Endpoint=sb://ibox-service-bus.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=JWYkpkwl8viqMdtyNQ3h3lLs4CVcSXrqo+ASbAfhAN4="
+SERVICE_BUS_TOPIC_NAME = "handler"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
