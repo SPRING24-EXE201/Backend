@@ -11,4 +11,4 @@ class OrderDetailAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('order_id', 'total_amount', 'payment_method', 'order_date', 'status')
+    list_display = ('id', 'total_amount', 'payment_method', 'order_date', 'status')

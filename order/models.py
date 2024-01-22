@@ -7,7 +7,7 @@ from user.models import User
 
 # Create your models here.
 class Order(models.Model):
-    order_id = models.CharField(max_length=100)
+    id = models.CharField(max_length=100, primary_key=True)
     total_amount = models.FloatField()
     payment_method = models.PositiveSmallIntegerField()
     order_date = models.DateTimeField(null=True, blank=True, default=timezone.now)
