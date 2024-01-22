@@ -14,7 +14,7 @@ class UserManager(BaseUserManager):
             raise ValueError('The given email must be set')
         email = self.normalize_email(email)
         if User.objects.filter(email=email).exists():
-            raise ValidationError('Email already registered')
+            raise ValueError('Email already registered')
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -46,7 +46,6 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=100)
     address = models.CharField(max_length=100, null=True, blank=True)
     image_link = models.CharField(max_length=100, null=True, blank=True)
-    refresh_token = models.TextField(null=True)
     objects = UserManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

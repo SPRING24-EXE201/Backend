@@ -1,40 +1,39 @@
+from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view
-from django.core.cache import cache
 from rest_framework_simplejwt.tokens import RefreshToken
+
 from user.web_api.serializers.otp_confirm_serializer import OtpConfirmSerializer
-from user.models import User
+
+
 @extend_schema(
-    request= OtpConfirmSerializer
+    request={'application/json': OtpConfirmSerializer}
 )
 
 @api_view(['POST'])
 def otp_confirm(request):
+    data = {}
+    status_code = 200
     try:
-    
         serializers = OtpConfirmSerializer(data=request.data)
-        if (serializers.is_valid()):
+        if serializers.is_valid(raise_exception=True):
             email = serializers.data.get('email')
             otp = serializers.data.get('otp')
-
-            if (cache.get(email) == otp):
-                user = User.objects.get(email = email)
+            user = authenticate(email=email, otp=otp)
+            if user is not None:
+                login(request=request, backend=settings.AUTHENTICATION_BACKENDS[0], user=user)
                 refresh = RefreshToken.for_user(user)
                 data = {
                     'access': str(refresh.access_token),
                     'refresh': str(refresh),
                 }
                 status_code = 200
-                user.refresh_token = str(refresh)
-                user.save()
             else:
-                raise Exception('OTP không khớp')
+                raise User.DoesNotExist
     except User.DoesNotExist as e:
         data = {'message': "Email không tồn tại"}
         status_code = 400
-    except Exception as e:
-        data = {'message': str(e)}
-        status_code = 401
-    finally: 
-        return JsonResponse(data, status=status_code)
+    return JsonResponse(data, status=status_code)
+
+  

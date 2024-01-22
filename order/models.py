@@ -16,10 +16,11 @@ class Order(models.Model):
     def __str__(self):
         return self.order_id
 
+
 class OrderDetail(models.Model):
-    cell_id = models.ForeignKey(Cell, on_delete=models.CASCADE)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    order_id = models.ForeignKey(Order, on_delete=models.CASCADE)
+    cell = models.ForeignKey(Cell, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
     campaign_id = models.IntegerField()
     time_start = models.DateTimeField(null=True, blank=True, default=None)
     time_end = models.DateTimeField(null=True, blank=True, default=None)
