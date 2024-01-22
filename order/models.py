@@ -14,7 +14,7 @@ class Order(models.Model):
     status = models.BooleanField()
 
     def __str__(self):
-        return self.order_id
+        return self.id
 
 
 class OrderDetail(models.Model):

@@ -14,7 +14,7 @@ def order_detail(request, order_id):
         if request.method == 'GET':
             if order_id:
                 try:
-                    order = Order.objects.get(order_id=order_id)
+                    order = Order.objects.get(id=order_id)
                 except Order.DoesNotExist:
                     return Response({'error': 'Order not found'}, status=404)
                 serializer = OrderSerializer(order)
@@ -36,7 +36,7 @@ def order_detail(request, order_id):
         elif request.method == 'DELETE':
             if order_id:
                 try:
-                    order = Order.objects.get(order_id=order_id)
+                    order = Order.objects.get(id=order_id)
                     if order.status is None:
                         return Response({'error': 'Order status is None, cannot delete'}, status=400)
                     elif order.status:
@@ -117,7 +117,7 @@ def handle_orders(request):
 
         # Create new order
         Order.objects.create(
-            order_id=order_id,
+            id=order_id,
             total_amount=total_amount,
             payment_method=payment_method,
             order_date=order_date,
