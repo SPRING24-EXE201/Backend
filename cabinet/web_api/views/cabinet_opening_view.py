@@ -22,9 +22,9 @@ def get_cabinet_opening_view(request):
             user_id = access_token['user_id']
             cell = Cell.objects.get(hash_code=hash_code)
 
-            if user_id == cell.user_id:
-                controller = cell.cabinet_id.controller_id
-                json_data = {"controller_id": controller.id, "cabinet_id": cell.cabinet_id_id, "cell_index": cell.cell_index}
+            if user_id == cell.user:
+                controller = cell.cabinet.controller
+                json_data = {"controller_id": controller.id, "cabinet_id": cell.cabinet_id, "cell_index": cell.cell_index}
                 data = CabinetOpeningSerializerResponse(json_data, many = False ).data
                 service_bus.handler_message(str(json_data))
                 status_code = 200
