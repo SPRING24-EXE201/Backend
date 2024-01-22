@@ -26,7 +26,7 @@ class OrderDetailSerializer(serializers.ModelSerializer):
         fields = ['order_id', 'id', 'cell_id', 'cell_index', 'cabinet_description', 'location_detail', 'time_start', 'time_end']
 
 class OrderByUserSerializer(serializers.ModelSerializer):
-    order_id = serializers.IntegerField(source='id')
+    order_id = serializers.CharField(source='id')
     order_detail_id = serializers.SerializerMethodField()
     cell_id = serializers.SerializerMethodField()
     cell_index = serializers.SerializerMethodField()
@@ -38,7 +38,7 @@ class OrderByUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'order_detail_id', 'cell_id', 'cell_index', 'cabinet_description', 'location_detail', 'order_date', 'start_date', 'end_date']
+        fields = ['order_id', 'order_detail_id', 'cell_id', 'cell_index', 'cabinet_description', 'location_detail', 'order_date', 'start_date', 'end_date']
 
     def get_order_detail_id(self, obj):
         return obj.orderdetail_set.first().id

@@ -83,7 +83,6 @@ def handle_orders(request):
 
             # Serialize the data
             serializer = OrderByUserSerializer(result_page, many=True)
-
             # Return the serialized data
             return paginator.get_paginated_response(serializer.data)
         except Exception as e:
