@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from cabinet.models import Cabinet, Cell
-from cabinet.web_api.serializers.cabinet_serializer import CabinetSerializer, EmptyCellsSerializer, \
+from cabinet.web_api.serializers.cabinet_serializer import CabinetSerializer, CellStatusSerializer, \
     EmptyCellsRequestSerializer
 from order.models import OrderDetail
 
@@ -39,13 +39,13 @@ def get_cabinet(request):
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_empty_cells(request, cabinet_id):
-    """
+def get_cell_status(request, cabinet_id):
+    """f
     Get all empty cells of a specified cabinet
     """
     request.query_params.appendlist('cabinet_id', cabinet_id)
     serializer = EmptyCellsRequestSerializer(data=request.query_params)
-    empty_cells = []
+    cells = []
     cabinet = None
     try:
         cabinet = Cabinet.objects.get(id=cabinet_id)
@@ -59,19 +59,26 @@ def get_empty_cells(request, cabinet_id):
         cabinet_id = serializer.data.get('cabinet_id')
         # not empty cells condition:
         # (needed_time_start <= order_detail_time_end) and (order_detail_time_start<= needed_time_end)
-        not_empty_cells = OrderDetail.objects.filter(time_end__gte=needed_time_start,
-                                                     time_start__lte=needed_time_end,
-                                                     order__status=True)
+        current_orders = OrderDetail.objects.filter(time_end__gte=needed_time_start,
+                                                    time_start__lte=needed_time_end,
+                                                    order__status=True).select_related('cell')
         # get cell_id of not empty cells
-        not_empty_cells = not_empty_cells.values_list('cell__id', flat=True).distinct()
-        empty_cells = Cell.objects.filter(cabinet__id=cabinet_id,
-                                          cabinet__status=True,
-                                          status__gt=0).exclude(id__in=not_empty_cells)
+        not_empty_cells_id = current_orders.values_list('cell__id', flat=True).distinct()
+        cells_in_cabinet = Cell.objects.filter(cabinet__id=cabinet_id,
+                                               cabinet__status=True,
+                                               status__gt=0)
+        not_empty_cells = [cell for cell in cells_in_cabinet if cell.id in not_empty_cells_id]
+        empty_cells = [cell for cell in cells_in_cabinet if cell.id not in not_empty_cells_id]
 
-    empty_cells_data = EmptyCellsSerializer(empty_cells, many=True).data
-
+        empty_cells_data = CellStatusSerializer(empty_cells, many=True).data
+        empty_cells_data = [dict(cell, **{'is_empty': True}) for cell in empty_cells_data]
+        not_empty_cells_data = CellStatusSerializer(not_empty_cells, many=True).data
+        not_empty_cells_data = [dict(cell, **{'is_empty': False}) for cell in not_empty_cells_data]
+        cells.extend(not_empty_cells_data)
+        cells.extend(empty_cells_data)
+        cells.sort(key=lambda cell: cell['cell_index'])
     return Response({
         'columns': cabinet.column_number,
         'rows': cabinet.row_number,
-        'empty_cells': empty_cells_data
+        'cells': cells
     })
