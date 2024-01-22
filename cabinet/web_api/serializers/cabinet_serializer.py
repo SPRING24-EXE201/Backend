@@ -12,7 +12,7 @@ class CabinetSerializer(serializers.ModelSerializer):
                   'depth', 'status', 'image_link', 'virtual_cabinet_id']
 
 
-class EmptyCellsSerializer(serializers.ModelSerializer):
+class CellStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cell
         fields = ['hash_code', 'cell_index', 'width', 'height', 'depth']
