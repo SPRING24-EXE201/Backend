@@ -16,6 +16,7 @@ class Order(models.Model):
     def __str__(self):
         return self.order_id
 
+
 class OrderDetail(models.Model):
     cell = models.ForeignKey(Cell, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

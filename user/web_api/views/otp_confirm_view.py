@@ -2,17 +2,17 @@ from django.contrib.auth import authenticate, login
 from django.http import JsonResponse
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view
-from django.core.cache import cache
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from exe201_backend import settings
+from user.models import User
 from user.web_api.serializers.otp_confirm_serializer import OtpConfirmSerializer
 
-from user.models import User
 
 @extend_schema(
-    request=OtpConfirmSerializer
+    request={'application/json': OtpConfirmSerializer}
 )
+
 @api_view(['POST'])
 def otp_confirm(request):
     data = {}
@@ -31,8 +31,6 @@ def otp_confirm(request):
                     'refresh': str(refresh),
                 }
                 status_code = 200
-                user.refresh_token = str(refresh)
-                user.save()
             else:
                 raise User.DoesNotExist
     except User.DoesNotExist as e:

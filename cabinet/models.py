@@ -1,3 +1,4 @@
+import uuid
 
 from django.db import models
 from django.utils import timezone
@@ -22,7 +23,6 @@ class CabinetType(models.Model):
     description = models.CharField(max_length=100)
     status = models.BooleanField()
     image_link = models.CharField(max_length=100)
-    cost_per_unit = models.FloatField()
 
     def __str__(self):
         return self.type
@@ -31,9 +31,9 @@ class CabinetType(models.Model):
 class CostVersion(models.Model):
     version = models.CharField(max_length=100)
     from_hour = models.FloatField()
-    to_hour = models.FloatField()
+    to_hour = models.FloatField(null=True)
     cost = models.FloatField()
-    unit = models.CharField(max_length=100)
+    unit = models.DurationField()
     status = models.BooleanField()
 
     def __str__(self):
@@ -61,11 +61,15 @@ class Cabinet(models.Model):
     depth = models.FloatField()
     status = models.BooleanField()
     image_link = models.CharField(max_length=100)
-    virtual_cabinet_id = models.CharField(max_length=100)
+    column_number = models.IntegerField(default=1)
+    row_number = models.IntegerField(default=1)
+
+    def __str__(self):
+        return self.description
 
 
 class CampaignCabinet(models.Model):
-    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='campaign')
     cabinet = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
     description = models.CharField(max_length=100)
 
@@ -75,14 +79,12 @@ class CampaignCabinet(models.Model):
 
 class Cell(models.Model):
     cabinet = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
-    user_id = models.IntegerField(null=True)
     status = models.PositiveSmallIntegerField()
-    hash_code = models.CharField(max_length=100, unique=True)
+    hash_code = models.UUIDField(max_length=100, unique=True, default=uuid.uuid4, editable=False)
     cell_index = models.PositiveSmallIntegerField()
     width = models.FloatField()
     height = models.FloatField()
     depth = models.FloatField()
-    expired_date = models.DateTimeField(null=True, blank=True, default=None)
 
     def __str__(self):
         return f'{self.cell_index} - Cabinet {self.cabinet.description}'
