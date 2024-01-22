@@ -172,7 +172,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'exe201_backend.wsgi.application'
-
+SERVICE_BUS_CON = os.environ.get("SERVICE_BUS_CON")
+SERVICE_BUS_TOPIC_NAME = os.environ.get("SERVICE_BUS_TOPIC_NAME")
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
