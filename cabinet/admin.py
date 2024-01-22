@@ -34,12 +34,6 @@ class ControllerAdmin(admin.ModelAdmin):
 class CellAdmin(admin.ModelAdmin):
     list_display = ('cell_index', 'cabinet_id', 'width', 'height', 'depth')
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(CellAdmin, self).get_form(request, obj, **kwargs)
-        form.base_fields['user_id'].required = False
-        form.base_fields['expired_date'].required = False
-        return form
-
 
 @admin.register(Campaign)
 class CampaignAdmin(admin.ModelAdmin):
