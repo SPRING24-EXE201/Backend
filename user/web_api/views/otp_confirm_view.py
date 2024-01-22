@@ -4,6 +4,8 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from exe201_backend import settings
+from user.models import User
 from user.web_api.serializers.otp_confirm_serializer import OtpConfirmSerializer
 
 

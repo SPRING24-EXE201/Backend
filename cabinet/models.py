@@ -80,7 +80,7 @@ class CampaignCabinet(models.Model):
 class Cell(models.Model):
     cabinet = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
     status = models.PositiveSmallIntegerField()
-    hash_code = models.CharField(max_length=100, unique=True, default=str(uuid.uuid4()))
+    hash_code = models.UUIDField(max_length=100, unique=True, default=uuid.uuid4, editable=False)
     cell_index = models.PositiveSmallIntegerField()
     width = models.FloatField()
     height = models.FloatField()
