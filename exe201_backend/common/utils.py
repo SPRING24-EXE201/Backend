@@ -141,11 +141,13 @@ class Utils:
         if not cell_id_list:
             return 0
         now = timezone.now()
-        empty_cells = (OrderDetail.objects.filter(cell__id__in=cell_id_list,
-                                                  time_start__lte=now,
-                                                  time_end__gte=now,
-                                                  order__status=True)
-                       .values_list('cell', flat=True)).distinct()
+        # empty_cells = (OrderDetail.objects.filter(cell__id__in=cell_id_list,
+        #                                           time_start__lte=now,
+        #                                           time_end__gte=now,
+        #                                           order__status=True)
+        #                .values_list('cell', flat=True)).exclude()
+        empty_cells = OrderDetail.objects.filter(cell__id__in=cell_id_list).exclude(time_start__lt = now,
+                                                                                time_end__gt = now)
         return len(empty_cells)
 
     @staticmethod

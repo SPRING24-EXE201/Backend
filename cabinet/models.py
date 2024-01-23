@@ -56,6 +56,7 @@ class Cabinet(models.Model):
     cabinet_type = models.ForeignKey(CabinetType, on_delete=models.CASCADE)
     description = models.CharField(max_length=100)
     start_using_date = models.CharField(max_length=100)
+    name = models.CharField(max_length=200, default="cabinet", blank=True)
     height = models.FloatField()
     width = models.FloatField()
     depth = models.FloatField()
