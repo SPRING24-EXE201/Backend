@@ -31,3 +31,12 @@ class EmptyCellsRequestSerializer(serializers.Serializer):
         if time_start + timedelta(minutes=30) >= time_end:
             raise serializers.ValidationError({'errorMessage': 'Khoảng thời gian không hợp lệ'})
         return data
+
+class CabinetNearbySerializer(serializers.Serializer):
+    location_detail = serializers.CharField()
+    ward_name = serializers.CharField()
+    cabinet_id = serializers.IntegerField()
+    district_name = serializers.CharField()
+    province_name = serializers.CharField()
+    empty_cell = serializers.IntegerField()
+    cabinet_name = serializers.CharField()
