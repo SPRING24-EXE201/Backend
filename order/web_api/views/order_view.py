@@ -8,6 +8,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from order.web_api.serializers.order_serializer import OrderSerializer, OrderByUserSerializer
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.types import OpenApiTypes
+from django.http import JsonResponse
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
@@ -115,7 +116,7 @@ def get_orders(request):
         orders = Order.objects.filter(orderdetail__user_id=user_id).order_by('orderdetail__time_start')
 
         if not orders.exists():
-            return Response({'error': 'Order not found'}, status=404)
+            raise Order.DoesNotExist
 
         paginator = CustomPageNumberPagination()
 
@@ -125,6 +126,14 @@ def get_orders(request):
         serializer = OrderByUserSerializer(result_page, many=True)
 
         # Return the serialized data
-        return Response({'data': serializer.data}, status=200)
+        data = serializer.data
+        status_code = 200
+    except Order.DoesNotExist:
+        data = {'error': 'Order not found'}
+        status_code = 400
     except (InvalidToken, TokenError):
-        return Response({'error': 'Invalid token'}, status=401)
+        data = {'error': 'Invalid token'}
+        status_code = 401
+    finally:
+        return JsonResponse(data, status = status_code, safe = False)
+
