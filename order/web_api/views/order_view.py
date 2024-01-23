@@ -2,10 +2,12 @@ from rest_framework_simplejwt.tokens import UntypedToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from order.pagination import CustomPageNumberPagination
+from exe201_backend.common.pagination import CustomPageNumberPagination
 from order.models import Order
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from order.web_api.serializers.order_serializer import OrderSerializer, OrderByUserSerializer
 from rest_framework.permissions import IsAuthenticated
+from drf_spectacular.types import OpenApiTypes
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
@@ -28,7 +30,8 @@ def order_detail(request, order_id):
                         order = Order.objects.get(order_id=order_id)
                         # Update the order
                         serializer.update(order, serializer.validated_data)
-                        return Response({'message': 'Order updated successfully!', 'order': serializer.data}, status=200)
+                        return Response({'message': 'Order updated successfully!', 'order': serializer.data},
+                                        status=200)
                     except Order.DoesNotExist:
                         return Response({'error': 'Order with id {} not found'.format(order_id)}, status=404)
                 else:
@@ -54,73 +57,74 @@ def order_detail(request, order_id):
     finally:
         pass
 
-@api_view(['GET', 'POST'])
+
+# @api_view('POST')
+# @permission_classes([IsAuthenticated])
+# def handle_orders(request):
+#     # Get the token from the request headers
+#     token = request.headers.get('Authorization')
+#
+#     # Remove 'Bearer ' from the token
+#     token = token.split(' ')[1]
+#
+#     try:
+#         # Decode the token to get the user_id
+#         user_id = UntypedToken(token).payload['user_id']
+#     except (InvalidToken, TokenError):
+#         return Response({'error': 'Invalid token'}, status=400)
+#
+#     order_id = request.data.get('order_id')
+#     total_amount = request.data.get('total_amount')
+#     payment_method = request.data.get('payment_method')
+#     order_date = request.data.get('order_date')
+#     status = request.data.get('status')
+#
+#     # Check null values
+#     if order_id is None or total_amount is None or payment_method is None or order_date is None or status is None:
+#         return Response({'message': 'Invalid input. Please provide all required fields.'}, status=400)
+#
+#     # Check if order_id already exists
+#     if Order.objects.filter(order_id=order_id).exists():
+#         return Response({'message': 'Order with this order_id already exists.'}, status=400)
+#
+#     # Create new order
+#     Order.objects.create(
+#         id=order_id,
+#         total_amount=total_amount,
+#         payment_method=payment_method,
+#         order_date=order_date,
+#         status=status
+#     )
+#
+#     return Response({'message': 'Order created successfully!'}, status=201)
+
+@extend_schema(
+    parameters=[
+        OpenApiParameter(name='page_size', required=False, type=OpenApiTypes.INT32, location=OpenApiParameter.QUERY),
+        OpenApiParameter(name='page', required=False, type=OpenApiTypes.INT32, location=OpenApiParameter.QUERY),
+    ]
+)
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def handle_orders(request):
-    if request.method == 'GET':
-        # Get the token from the request headers
-        token = request.headers.get('Authorization')
+def get_orders(request):
+    try:
+        access_token = request.auth
+        # Decode the token to get the user_id
+        user_id = access_token['user_id']
+        # Get all Order objects related to the user_id
+        orders = Order.objects.filter(orderdetail__user_id=user_id).order_by('orderdetail__time_start')
 
-        # Remove 'Bearer ' from the token
-        token = token.split(' ')[1]
+        if not orders.exists():
+            return Response({'error': 'Order not found'}, status=404)
 
-        try:
-            # Decode the token to get the user_id
-            user_id = UntypedToken(token).payload['user_id']
-        except (InvalidToken, TokenError):
-            return Response({'error': 'Invalid token'}, status=400)
+        paginator = CustomPageNumberPagination()
 
-        try:
-            # Get all Order objects related to the user_id
-            orders = Order.objects.filter(orderdetail__user_id=user_id).order_by('orderdetail__time_start')
+        result_page = paginator.paginate_queryset(orders, request)
 
-            if not orders.exists():
-                return Response({'error': 'Order not found'}, status=404)
+        # Serialize the data
+        serializer = OrderByUserSerializer(result_page, many=True)
 
-            paginator = CustomPageNumberPagination()
-
-            result_page = paginator.paginate_queryset(orders, request)
-
-            # Serialize the data
-            serializer = OrderByUserSerializer(result_page, many=True)
-            # Return the serialized data
-            return paginator.get_paginated_response(serializer.data)
-        except Exception as e:
-            return Response({'error': 'Something went wrong'}, status=400)
-    elif request.method == 'POST':
-        # Get the token from the request headers
-        token = request.headers.get('Authorization')
-
-        # Remove 'Bearer ' from the token
-        token = token.split(' ')[1]
-
-        try:
-            # Decode the token to get the user_id
-            user_id = UntypedToken(token).payload['user_id']
-        except (InvalidToken, TokenError):
-            return Response({'error': 'Invalid token'}, status=400)
-
-        order_id = request.data.get('order_id')
-        total_amount = request.data.get('total_amount')
-        payment_method = request.data.get('payment_method')
-        order_date = request.data.get('order_date')
-        status = request.data.get('status')
-
-        # Check null values
-        if order_id is None or total_amount is None or payment_method is None or order_date is None or status is None:
-            return Response({'message': 'Invalid input. Please provide all required fields.'}, status=400)
-
-        # Check if order_id already exists
-        if Order.objects.filter(order_id=order_id).exists():
-            return Response({'message': 'Order with this order_id already exists.'}, status=400)
-
-        # Create new order
-        Order.objects.create(
-            id=order_id,
-            total_amount=total_amount,
-            payment_method=payment_method,
-            order_date=order_date,
-            status=status
-        )
-
-        return Response({'message': 'Order created successfully!'}, status=201)
+        # Return the serialized data
+        return Response({'data': serializer.data}, status=200)
+    except (InvalidToken, TokenError):
+        return Response({'error': 'Invalid token'}, status=401)
