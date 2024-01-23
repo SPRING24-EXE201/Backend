@@ -4,9 +4,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from django.http import JsonResponse, HttpResponse
-
 from order.models import Order, OrderDetail
 from order.web_api.serializers.order_serializer import OrderSerializer
+from django.core.exceptions import PermissionDenied
 
 
 @permission_classes([IsAuthenticated])
@@ -16,6 +16,8 @@ def order_list(request):
         user = request.user
         data = []
         status_code = 200
+        if user.is_anonymous:
+            raise PermissionDenied("Không có quyên truy cập")
         try:
             orders = OrderDetail.objects.filter(user=user)
             data = OrderSerializer(orders, many=True).data
