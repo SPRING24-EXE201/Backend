@@ -115,9 +115,6 @@ def get_orders(request):
         # Get all Order objects related to the user_id
         orders = Order.objects.filter(orderdetail__user_id=user_id).order_by('orderdetail__time_start')
 
-        if not orders.exists():
-            raise Order.DoesNotExist
-
         paginator = CustomPageNumberPagination()
 
         result_page = paginator.paginate_queryset(orders, request)
