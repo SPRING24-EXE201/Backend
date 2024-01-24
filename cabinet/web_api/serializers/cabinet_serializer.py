@@ -40,3 +40,13 @@ class CabinetNearbySerializer(serializers.Serializer):
     province_name = serializers.CharField()
     empty_cell = serializers.IntegerField()
     cabinet_name = serializers.CharField()
+
+class CabinetInformationSerializer(serializers.Serializer):
+    location_name = serializers.CharField()
+    location_detail = serializers.CharField()
+    width = serializers.FloatField()
+    height = serializers.FloatField()
+    depth = serializers.FloatField()
+    empty_cell = serializers.IntegerField()
+    description = serializers.CharField()
+    cabinet_type = serializers.CharField()
