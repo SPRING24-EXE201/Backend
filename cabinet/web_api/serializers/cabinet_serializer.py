@@ -28,7 +28,7 @@ class EmptyCellsRequestSerializer(serializers.Serializer):
         time_start = data['time_start']
         time_end = data['time_end']
         valid_messages = Utils.validate_order_time(time_start, time_end)
-        if not valid_messages:
+        if valid_messages:
             raise serializers.ValidationError({
                 'message': valid_messages
             })
