@@ -1,12 +1,13 @@
 import datetime
 import random
+from datetime import timedelta
 
 from datetimerange import DateTimeRange
 from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.utils import timezone
 
-from cabinet.models import CostVersion, Cell
+from cabinet.models import CostVersion, Cell, CampaignCabinet, Campaign
 from exe201_backend.common.constants import SystemConstants
 from order.models import OrderDetail
 
@@ -44,7 +45,7 @@ class Utils:
         return True
 
     @staticmethod
-    def calc_total_cost(campaign, order_time_start, order_time_end):
+    def calc_total_cost_in_campaign(campaign, order_time_start, order_time_end):
         """
         Calculate total cost in a range of campaign
         :param campaign:
@@ -74,6 +75,29 @@ class Utils:
             total_cost += (duration_in_version.total_seconds() / version.unit.total_seconds()) * version.cost
 
         return round(total_cost, 0)
+
+    @staticmethod
+    def calc_total_cost_in_order_detail(hash_code, time_start, time_end):
+        """
+        :param: cell_id, time_start, time_end
+        :return: total cost in order detail
+        :exception: Cell.DoesNotExist, CostVersion.DoesNotExist, Campaign.DoesNotExist
+        """
+        total_cost = 0
+        cell = Cell.objects.get(hash_code=hash_code)
+        campaign_cabinets = (CampaignCabinet.objects.filter(cabinet__id=cell.cabinet.id,
+                                                            campaign__status=True,
+                                                            campaign__time_end__gte=time_start,
+                                                            campaign__time_start__lte=time_end)
+                             .select_related('campaign').order_by('campaign__time_start'))
+        campaigns = []
+        if not campaign_cabinets:
+            campaigns = [Campaign.objects.get(time_start=None, time_end=True,status=True)]
+        else:
+            campaigns = [campaign_cabinet.campaign for campaign_cabinet in campaign_cabinets]
+        for valid_campaign in campaigns:
+            total_cost += Utils.calc_total_cost_in_campaign(valid_campaign, time_start, time_end)
+        return total_cost
 
     @staticmethod
     def check_valid_cells(data):
@@ -119,7 +143,7 @@ class Utils:
                     invalid_cells.append(key)
         except OrderDetail.DoesNotExist:
             valid_cells = Cell.objects.filter(hash_code__in=list(data.keys()),
-                                              status_gt=0)
+                                              status__gt=0)
             if not valid_cells:
                 raise Cell.DoesNotExist
             valid_cells = [cell.__dict__.update({
@@ -171,3 +195,16 @@ class Utils:
         except OrderDetail.DoesNotExist:
             user = None
         return user
+
+    @staticmethod
+    def validate_order_time(time_start, time_end):
+        """
+        Validate new order time
+        :param: time_start, time_end datetime
+        :return: None if valid, errorMessage if invalid
+        """
+        if time_start < timezone.now():
+            return 'Thời gian bắt đầu phải lớn hơn thời gian hiện tại'
+        if time_start + timedelta(minutes=30) > time_end or (time_end - time_start).total_seconds() % 1800 != 0:
+            return 'Khoảng thời gian không hợp lệ'
+        return None

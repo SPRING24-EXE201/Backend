@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.utils import timezone
 from rest_framework import serializers
 from cabinet.models import Cabinet, Cell
+from exe201_backend.common.utils import Utils
 
 
 class CabinetSerializer(serializers.ModelSerializer):
@@ -26,11 +27,13 @@ class EmptyCellsRequestSerializer(serializers.Serializer):
     def validate(self, data):
         time_start = data['time_start']
         time_end = data['time_end']
-        if time_start < timezone.now():
-            raise serializers.ValidationError({'errorMessage': 'Thời gian bắt đầu phải lớn hơn thời gian hiện tại'})
-        if time_start + timedelta(minutes=30) >= time_end:
-            raise serializers.ValidationError({'errorMessage': 'Khoảng thời gian không hợp lệ'})
+        valid_messages = Utils.validate_order_time(time_start, time_end)
+        if valid_messages:
+            raise serializers.ValidationError({
+                'message': valid_messages
+            })
         return data
+
 
 class CabinetNearbySerializer(serializers.Serializer):
     location_detail = serializers.CharField()
