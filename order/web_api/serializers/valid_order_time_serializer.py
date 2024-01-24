@@ -58,24 +58,18 @@ class ValidOrderSerializer(serializers.Serializer):
     total_cost = serializers.SerializerMethodField()
 
     def get_total_cost(self, data):
-        t_zone = SystemConstants.timezone
-        order_time_start = data['time_start']
-        order_time_end = data['time_end']
         total_cost = 0
+        error_message = None
         try:
-            campaign_cabinets = (CampaignCabinet.objects.filter(cabinet__id=data['cabinet_id'])
-                                                        .select_related('campaign').order_by('campaign__time_start'))
-            if not campaign_cabinets:
-                raise CampaignCabinet.DoesNotExist
-            campaign_cabinets = [campaign_cabinet.campaign for campaign_cabinet in campaign_cabinets]
-            # check valid time condition
-            # (order_time_start <= campaign_time_end) and (campaign_time_start<= order_time_end)
-            valid_campaign_list = [campaign for campaign in campaign_cabinets
-                                   if order_time_start <= campaign.time_end and campaign.time_start <= order_time_end]
-            for valid_campaign in valid_campaign_list:
-                total_cost += Utils.calc_total_cost(valid_campaign, order_time_start, order_time_end)
+            total_cost = Utils.calc_total_cost_in_order_detail(data['hash_code'], data['time_start'], data['time_end'])
+        except Cell.DoesNotExist:
+            error_message = 'Không tìm thấy ô tủ!'
         except (CampaignCabinet.DoesNotExist, CostVersion.DoesNotExist):
-            pass
+            error_message = 'Không thể tính toán, vui lòng thử lại sau!'
+        if error_message is not None:
+            raise serializers.ValidationError({
+                'message': error_message
+            })
         return total_cost
 
     def get_location_detail(self, data):
