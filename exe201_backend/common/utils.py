@@ -1,5 +1,6 @@
 import datetime
 import random
+from datetime import timedelta
 
 from datetimerange import DateTimeRange
 from django.core.cache import cache
@@ -171,3 +172,16 @@ class Utils:
         except OrderDetail.DoesNotExist:
             user = None
         return user
+
+    @staticmethod
+    def validate_order_time(time_start, time_end):
+        """
+        Validate new order time
+        :param: time_start, time_end datetime
+        :return: None if valid, errorMessage if invalid
+        """
+        if time_start < timezone.now():
+            return 'Thời gian bắt đầu phải lớn hơn thời gian hiện tại'
+        if time_start + timedelta(minutes=30) > time_end and (time_end - time_start).total_seconds() % 1800 != 0:
+            return 'Khoảng thời gian không hợp lệ'
+        return None
