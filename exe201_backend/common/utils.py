@@ -120,7 +120,7 @@ class Utils:
                     invalid_cells.append(key)
         except OrderDetail.DoesNotExist:
             valid_cells = Cell.objects.filter(hash_code__in=list(data.keys()),
-                                              status_gt=0)
+                                              status__gt=0)
             if not valid_cells:
                 raise Cell.DoesNotExist
             valid_cells = [cell.__dict__.update({
@@ -182,6 +182,6 @@ class Utils:
         """
         if time_start < timezone.now():
             return 'Thời gian bắt đầu phải lớn hơn thời gian hiện tại'
-        if time_start + timedelta(minutes=30) > time_end and (time_end - time_start).total_seconds() % 1800 != 0:
+        if time_start + timedelta(minutes=30) > time_end or (time_end - time_start).total_seconds() % 1800 != 0:
             return 'Khoảng thời gian không hợp lệ'
         return None
