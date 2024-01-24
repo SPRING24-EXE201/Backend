@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.utils import timezone
 
-from cabinet.models import CostVersion, Cell, CampaignCabinet
+from cabinet.models import CostVersion, Cell, CampaignCabinet, Campaign
 from exe201_backend.common.constants import SystemConstants
 from order.models import OrderDetail
 
@@ -81,7 +81,7 @@ class Utils:
         """
         :param: cell_id, time_start, time_end
         :return: total cost in order detail
-        :exception: Cell.DoesNotExist, CampaignCabinet.DoesNotExist, CostVersion.DoesNotExist
+        :exception: Cell.DoesNotExist, CostVersion.DoesNotExist, Campaign.DoesNotExist
         """
         total_cost = 0
         cell = Cell.objects.get(hash_code=hash_code)
@@ -90,9 +90,11 @@ class Utils:
                                                             campaign__time_end__gte=time_start,
                                                             campaign__time_start__lte=time_end)
                              .select_related('campaign').order_by('campaign__time_start'))
+        campaigns = []
         if not campaign_cabinets:
-            raise CampaignCabinet.DoesNotExist
-        campaigns = [campaign_cabinet.campaign for campaign_cabinet in campaign_cabinets]
+            campaigns = [Campaign.objects.get(time_start=None, time_end=True,status=True)]
+        else:
+            campaigns = [campaign_cabinet.campaign for campaign_cabinet in campaign_cabinets]
         for valid_campaign in campaigns:
             total_cost += Utils.calc_total_cost_in_campaign(valid_campaign, time_start, time_end)
         return total_cost
