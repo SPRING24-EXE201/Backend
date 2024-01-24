@@ -5,32 +5,52 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from exe201_backend.common import utils
-from cabinet.models import Cabinet, Cell
+from cabinet.models import Cabinet, Cell, CabinetType
 from cabinet.web_api.serializers.cabinet_serializer import CabinetSerializer, EmptyCellsSerializer, \
-    EmptyCellsRequestSerializer, CabinetNearbySerializer
+    EmptyCellsRequestSerializer, CabinetNearbySerializer, CabinetInformationSerializer
 from location.models import Location, Ward, District, Province
 from order.models import OrderDetail
 from exe201_backend.common.pagination import CustomPageNumberPagination
 from django.http import JsonResponse
 
+@extend_schema(
+    parameters=[
+        OpenApiParameter(name='cabinet_id', required=True, type=OpenApiTypes.INT32, location=OpenApiParameter.PATH),
+    ]
+)
 @api_view(['GET'])
-def get_cabinet(request):
+def get_cabinet(request, cabinet_id):
     """
     Get all cabinet
     """
-    cabinet = []
+    data = ""
     try:
-        cabinet = Cabinet.objects.all().filter(status=True)
+        cabinet = Cabinet.objects.select_related('controller__location').select_related('cabinet_type').get(status = True, id=cabinet_id)
+        cells = Cell.objects.filter(cabinet_id=cabinet.id).values('id')
+        empty_cells = utils.Utils.get_empty_cells_by_order_details(cells)
+        response_object = {"location_name" : cabinet.controller.location.location_name,
+                "location_detail" : cabinet.controller.location.location_detail,
+                "width" : cabinet.width,
+                "height": cabinet.height,
+                "depth": cabinet.depth,
+                "empty_cell" : empty_cells,
+                "description" : cabinet.description,
+                "cabinet_type" : cabinet.cabinet_type.type}
+
+        serializer = CabinetInformationSerializer(response_object, many = False)
+        data = serializer.data
+        status_code = 200
     except Cabinet.DoesNotExist:
-        pass
-
-    data = CabinetSerializer(cabinet, many=True).data
-
-    return Response({
-        'success': True,
-        'data': data,
-    })
-
+        data = {'message': "Tủ không tồn tại"}
+        status_code = 400
+    except CabinetType.DoesNotExist:
+        data = {'message': "Loại tủ không tồn tại"}
+        status_code = 400
+    except Location.DoesNotExist:
+        data = {'message': "Địa điểm không tồn tại"}
+        status_code = 400
+    finally:
+        return JsonResponse(data = data, status = status_code, safe = False)
 
 @extend_schema(
     parameters=[
