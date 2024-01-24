@@ -1,12 +1,6 @@
-from datetime import timedelta
-from uuid import UUID
-
-from dateutil import parser
-from django.utils import timezone as tz
 from rest_framework import serializers
 
-from cabinet.models import CampaignCabinet, CostVersion, Cabinet, Cell
-from exe201_backend.common.constants import SystemConstants
+from cabinet.models import CostVersion, Cabinet, Cell, Campaign
 from exe201_backend.common.utils import Utils
 
 
@@ -19,7 +13,7 @@ class ValidOrderTimeRequestSerializer(serializers.Serializer):
         time_start = data['time_start']
         time_end = data['time_end']
         valid_messages = Utils.validate_order_time(time_start, time_end)
-        if valid_messages is not None:
+        if valid_messages:
             raise serializers.ValidationError({
                 'message': valid_messages
             })
@@ -64,7 +58,7 @@ class ValidOrderSerializer(serializers.Serializer):
             total_cost = Utils.calc_total_cost_in_order_detail(data['hash_code'], data['time_start'], data['time_end'])
         except Cell.DoesNotExist:
             error_message = 'Không tìm thấy ô tủ!'
-        except (CampaignCabinet.DoesNotExist, CostVersion.DoesNotExist):
+        except (Campaign.DoesNotExist, CostVersion.DoesNotExist):
             error_message = 'Không thể tính toán, vui lòng thử lại sau!'
         if error_message is not None:
             raise serializers.ValidationError({
