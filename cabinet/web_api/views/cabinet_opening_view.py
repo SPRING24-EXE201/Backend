@@ -1,9 +1,8 @@
 from rest_framework.decorators import api_view, permission_classes
 from django.http import JsonResponse
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
 from drf_spectacular.utils import extend_schema
-from cabinet.models import Cabinet, Cell, Controller
+from cabinet.models import Cell
 from django.core.exceptions import PermissionDenied
 from cabinet.web_api.serializers.cabinet_opening_serializer import CabinetOpeningSerializerRequest, CabinetOpeningSerializerResponse
 from exe201_backend import service_bus
@@ -18,7 +17,6 @@ def get_cabinet_opening_view(request):
         if serializers.is_valid():
             hash_code = serializers.data.get('hash_code')
             access_token = request.auth
-            refresh = RefreshToken.for_user(request.user)
             user_id = access_token['user_id']
             cell = Cell.objects.get(hash_code=hash_code)
 
