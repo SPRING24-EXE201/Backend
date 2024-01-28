@@ -92,7 +92,7 @@ class Utils:
                              .select_related('campaign').order_by('campaign__time_start'))
         campaigns = []
         if not campaign_cabinets:
-            campaigns = [Campaign.objects.get(time_start=None, time_end=True,status=True)]
+            campaigns = [Campaign.objects.get(time_start=None, time_end=None, status=True)]
         else:
             campaigns = [campaign_cabinet.campaign for campaign_cabinet in campaign_cabinets]
         for valid_campaign in campaigns:
