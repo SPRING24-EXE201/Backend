@@ -26,6 +26,10 @@ def otp_confirm(request):
             if user is not None:
                 login(request=request, backend=settings.AUTHENTICATION_BACKENDS[0], user=user)
                 refresh = RefreshToken.for_user(user)
+                refresh['name'] = user.full_name
+                refresh['phone'] = user.phone_number
+                refresh['email'] = user.email
+                refresh['image_link'] = user.image_link
                 data = {
                     'access': str(refresh.access_token),
                     'refresh': str(refresh),
