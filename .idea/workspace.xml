@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="df7cec4b-5b45-44c6-860f-78ff32d24fbf" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exe201_backend/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/exe201_backend/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order/root_urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/order/root_urls.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,6 +44,7 @@
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
+        <env name="DJANGO_SETTINGS_MODULE" value="exe201_backend.settings" />
       </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="" />
@@ -71,7 +72,7 @@
       <option name="presentableId" value="Default" />
       <updated>1705974753753</updated>
       <workItem from="1705974755279" duration="3217000" />
-      <workItem from="1706456323600" duration="112000" />
+      <workItem from="1706456323600" duration="1419000" />
     </task>
     <servers />
   </component>
