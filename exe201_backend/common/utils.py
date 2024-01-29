@@ -146,10 +146,15 @@ class Utils:
                                               status__gt=0)
             if not valid_cells:
                 raise Cell.DoesNotExist
-            valid_cells = [cell.__dict__.update({
-                'time_start': data[cell.hash_code]['time_start'],
-                'time_end': data[cell.hash_code]['time_end']
-            }) for cell in valid_cells]
+            valid_cells_data = []
+            for cell in valid_cells:
+                cell_data = cell.__dict__
+                cell_data.update({
+                    'time_start': data[cell.hash_code]['time_start'],
+                    'time_end': data[cell.hash_code]['time_end']
+                })
+                valid_cells_data.append(cell_data)
+            valid_cells = valid_cells_data
         return {
             'valid_cells': valid_cells,
             'invalid_cells': invalid_cells
