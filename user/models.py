@@ -45,7 +45,7 @@ class User(AbstractUser):
     full_name = models.CharField(max_length=200, null=True, blank=True)
     phone_number = models.CharField(max_length=100)
     address = models.CharField(max_length=100, null=True, blank=True)
-    image_link = models.CharField(max_length=100, null=True, blank=True)
+    image_link = models.CharField(max_length=500, null=True, blank=True)
     objects = UserManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
