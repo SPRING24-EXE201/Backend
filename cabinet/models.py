@@ -22,7 +22,7 @@ class CabinetType(models.Model):
     type = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
     status = models.BooleanField()
-    image_link = models.CharField(max_length=100)
+    image_link = models.CharField(max_length=500)
 
     def __str__(self):
         return self.type
@@ -61,7 +61,7 @@ class Cabinet(models.Model):
     width = models.FloatField()
     depth = models.FloatField()
     status = models.BooleanField()
-    image_link = models.CharField(max_length=100)
+    image_link = models.CharField(max_length=500)
     column_number = models.IntegerField(default=1)
     row_number = models.IntegerField(default=1)
 
