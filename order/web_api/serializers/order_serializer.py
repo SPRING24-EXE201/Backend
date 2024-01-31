@@ -36,13 +36,22 @@ class OrderByUserSerializer(serializers.ModelSerializer):
     order_date = serializers.DateTimeField()
     start_date = serializers.SerializerMethodField()
     end_date = serializers.SerializerMethodField()
-    height = serializers.IntegerField(source='cell.cabinet.height')
-    width = serializers.IntegerField(source='cell.cabinet.width')
-    depth = serializers.IntegerField(source='cell.cabinet.depth')
+    height = serializers.SerializerMethodField()
+    width = serializers.SerializerMethodField()
+    depth = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = ['order_id', 'order_detail_id', 'cell_id', 'cell_index', 'cabinet_description', 'location_detail', 'order_date', 'start_date', 'end_date', 'height', 'width', 'depth']
+
+    def get_height(self, obj):
+        return obj.orderdetail_set.first().cell.height
+
+    def get_width(self, obj):
+        return obj.orderdetail_set.first().cell.width
+
+    def get_depth(self, obj):
+        return obj.orderdetail_set.first().cell.depth
 
     def get_order_detail_id(self, obj):
         return obj.orderdetail_set.first().id
