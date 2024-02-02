@@ -1,15 +1,17 @@
-from rest_framework_simplejwt.tokens import UntypedToken
+from django.http import JsonResponse
+from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-from rest_framework.decorators import api_view, permission_classes, permission_classes
+from drf_spectacular.utils import extend_schema
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+
 from exe201_backend.common.pagination import CustomPageNumberPagination
 from order.models import Order
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from order.web_api.serializers.order_serializer import OrderSerializer, OrderByUserSerializer
-from rest_framework.permissions import IsAuthenticated
-from drf_spectacular.types import OpenApiTypes
-from django.http import JsonResponse
+from order.web_api.serializers.order_serializer import OrderSerializer, OrderByUserSerializer, \
+    OrderCellRequestSerializer
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
@@ -101,37 +103,38 @@ def order_detail(request, order_id):
 #     return Response({'message': 'Order created successfully!'}, status=201)
 
 @extend_schema(
-    parameters=[
-        OpenApiParameter(name='page_size', required=False, type=OpenApiTypes.INT32, location=OpenApiParameter.QUERY),
-        OpenApiParameter(name='page', required=False, type=OpenApiTypes.INT32, location=OpenApiParameter.QUERY),
-    ]
+    parameters=[OrderCellRequestSerializer],
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_orders(request):
-    try:
-        access_token = request.auth
-        # Decode the token to get the user_id
-        user_id = access_token['user_id']
-        # Get all Order objects related to the user_id
-        orders = Order.objects.filter(orderdetail__user_id=user_id).order_by('orderdetail__time_start')
+    access_token = request.auth
+    user_id = access_token['user_id']
+    request_serializer = OrderCellRequestSerializer(data=request.query_params)
+    response = {}
+    paginator = CustomPageNumberPagination()
+    if request_serializer.is_valid(raise_exception=True):
+        orders = Order.objects.filter(orderdetail__user__id=user_id)
+        time_start = request_serializer.data.get('start_date')
+        time_end = request_serializer.data.get('end_date')
+        cell_id = request_serializer.data.get('cell_id')
+        is_desc = request_serializer.data.get('is_desc')
+        if cell_id:
+            orders = orders.filter(orderdetail__cell__id=cell_id)
+        if time_start and time_end:
+            orders = orders.filter(order_date__gte=time_start,
+                                   order_date__lte=time_end)
+        if is_desc:
+            orders = orders.order_by('-order_date')
+        else:
+            orders = orders.order_by('order_date')
+        if not orders:
+            raise ValidationError({
+                'message': 'Không tìm thấy thông tin'
+            })
+        serializer = OrderByUserSerializer(orders, many=True)
 
-        paginator = CustomPageNumberPagination()
-
-        result_page = paginator.paginate_queryset(orders, request)
-
-        # Serialize the data
-        serializer = OrderByUserSerializer(result_page, many=True)
+        response = paginator.paginate_queryset(serializer.data, request)
 
         # Return the serialized data
-        data = serializer.data
-        status_code = 200
-    except Order.DoesNotExist:
-        data = {'error': 'Order not found'}
-        status_code = 400
-    except (InvalidToken, TokenError):
-        data = {'error': 'Invalid token'}
-        status_code = 401
-    finally:
-        return JsonResponse(data, status = status_code, safe = False)
-
+    return paginator.get_paginated_response(response)

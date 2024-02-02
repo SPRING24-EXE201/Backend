@@ -12,7 +12,7 @@ class Order(models.Model):
     id = models.UUIDField(max_length=100, primary_key=True, default=uuid.uuid4)
     total_amount = models.FloatField()
     payment_method = models.PositiveSmallIntegerField()
-    order_date = models.DateTimeField(null=True, blank=True, default=timezone.now)
+    order_date = models.DateTimeField(default=timezone.now)
     status = models.BooleanField()
 
     def __str__(self):
