@@ -5,7 +5,9 @@ from drf_spectacular.utils import extend_schema
 from cabinet.models import Cell
 from django.core.exceptions import PermissionDenied
 from cabinet.web_api.serializers.cabinet_opening_serializer import CabinetOpeningSerializerRequest, CabinetOpeningSerializerResponse
-from exe201_backend import service_bus
+from exe201_backend import service_bus, settings
+
+
 @extend_schema(
     request = CabinetOpeningSerializerRequest
 )
@@ -24,7 +26,7 @@ def get_cabinet_opening_view(request):
                 controller = cell.cabinet.controller
                 json_data = {"controller_id": controller.id, "cabinet_id": cell.cabinet_id, "cell_index": cell.cell_index}
                 data = CabinetOpeningSerializerResponse(json_data, many = False ).data
-                service_bus.handler_message(str(json_data))
+                service_bus.handler_message(str(json_data), settings.SERVICE_BUS_TOPIC_NAME)
                 status_code = 200
             else:
                 raise PermissionDenied("Không có quyên truy cập")
