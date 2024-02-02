@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from cabinet.models import CostVersion, Cell, CampaignCabinet, Campaign
 from exe201_backend.common.constants import SystemConstants
+from exe201_backend.service_bus import handler_message
 from order.models import OrderDetail
 
 
@@ -213,3 +214,14 @@ class Utils:
         if time_start + timedelta(minutes=30) > time_end or (time_end - time_start).total_seconds() % 1800 != 0:
             return 'Khoảng thời gian không hợp lệ'
         return None
+
+    @staticmethod
+    def send_notification(title, content, data):
+        topic = SystemConstants.notification_svb_topic
+        message = {
+            'title': title,
+            'content': content,
+            'data': data
+        }
+        handler_message(str(message), topic)
+        
