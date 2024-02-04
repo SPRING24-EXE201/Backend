@@ -16,6 +16,6 @@ class CustomPageNumberPagination(pagination.PageNumberPagination):
         return Response({
             'totalPage': self.page.paginator.num_pages,
             'currentPage': self.page.number,
-            'pageSize': self.page_size,
+            'pageSize': self.get_page_size(self.request),
             'data': data
         })
