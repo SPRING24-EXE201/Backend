@@ -1,7 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
+import uuid
 
 class UserManager(BaseUserManager):
     """Define a model manager for User model with no username field."""
@@ -50,3 +50,7 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
+class Assignment(models.Model):
+    id = models.UUIDField(max_length=100, primary_key=True, default=uuid.uuid4)
+    email = models.EmailField(max_length=100)
+    status = models.BooleanField()
