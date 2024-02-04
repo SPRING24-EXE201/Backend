@@ -11,12 +11,12 @@ from user.models import User
 class Order(models.Model):
     id = models.UUIDField(max_length=100, primary_key=True, default=uuid.uuid4)
     total_amount = models.FloatField()
-    payment_method = models.PositiveSmallIntegerField()
+    payment_method = models.PositiveSmallIntegerField(default=1)
     order_date = models.DateTimeField(default=timezone.now)
     status = models.BooleanField()
 
     def __str__(self):
-        return self.id
+        return str(self.id)
 
 
 class OrderDetail(models.Model):
