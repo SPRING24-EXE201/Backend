@@ -1,14 +1,11 @@
-from django.http import JsonResponse
-from rest_framework.exceptions import ValidationError
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 from exe201_backend.common.pagination import CustomPageNumberPagination
-from order.models import Order
+from order.models import Order, OrderDetail
 from order.web_api.serializers.order_serializer import OrderSerializer, OrderByUserSerializer, \
     OrderCellRequestSerializer
 
@@ -107,32 +104,32 @@ def order_detail(request, order_id):
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_orders(request):
+def get_cell_rent(request):
     access_token = request.auth
     user_id = access_token['user_id']
     request_serializer = OrderCellRequestSerializer(data=request.query_params)
     response = {}
     paginator = CustomPageNumberPagination()
     if request_serializer.is_valid(raise_exception=True):
-        orders = Order.objects.filter(orderdetail__user__id=user_id)
+        order_details = OrderDetail.objects.filter(user__id=user_id)
         time_start = request_serializer.data.get('start_date')
         time_end = request_serializer.data.get('end_date')
         cell_id = request_serializer.data.get('cell_id')
         is_desc = request_serializer.data.get('is_desc')
         if cell_id:
-            orders = orders.filter(orderdetail__cell__id=cell_id)
+            order_details = order_details.filter(cell__id=cell_id)
         if time_start and time_end:
-            orders = orders.filter(order_date__gte=time_start,
-                                   order_date__lte=time_end)
+            order_details = order_details.filter(order__order_date__gte=time_start,
+                                                 order__order_date__lte=time_end)
         if is_desc:
-            orders = orders.order_by('-order_date')
+            order_details = order_details.order_by('-order__order_date')
         else:
-            orders = orders.order_by('order_date')
-        if not orders:
+            order_details = order_details.order_by('order__order_date')
+        if not order_details:
             raise ValidationError({
                 'message': 'Không tìm thấy thông tin'
             })
-        serializer = OrderByUserSerializer(orders, many=True)
+        serializer = OrderByUserSerializer(order_details.distinct(), many=True)
 
         response = paginator.paginate_queryset(serializer.data, request)
 

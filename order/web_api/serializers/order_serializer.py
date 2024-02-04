@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from exe201_backend.common.payment_method_enum import PaymentMethod
 from order.models import Order
 from order.models import OrderDetail
 
@@ -32,9 +34,11 @@ class OrderSerializer(serializers.ModelSerializer):
     order_date = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S', source='order.order_date')
     start_date = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S', source='time_start')
     end_date = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S', source='time_end')
+
     class Meta:
         model = Order
         fields = ['id', 'total_amount', 'payment_method', 'order_date', 'status']
+
 
 class OrderDetailSerializer(serializers.ModelSerializer):
     order_id = serializers.CharField(source='order.id', read_only=True)
@@ -45,52 +49,32 @@ class OrderDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderDetail
-        fields = ['order_id', 'id', 'cell_id', 'cell_index', 'cabinet_description', 'location_detail', 'time_start', 'time_end']
+        fields = ['order_id', 'id', 'cell_id', 'cell_index', 'cabinet_description', 'location_detail', 'time_start',
+                  'time_end']
+
 
 class OrderByUserSerializer(serializers.ModelSerializer):
-    order_id = serializers.CharField(source='id')
-    order_detail_id = serializers.SerializerMethodField()
-    cell_id = serializers.SerializerMethodField()
-    cell_index = serializers.SerializerMethodField()
-    cabinet_description = serializers.SerializerMethodField()
-    location_detail = serializers.SerializerMethodField()
-    order_date = serializers.DateTimeField()
-    start_date = serializers.SerializerMethodField()
-    end_date = serializers.SerializerMethodField()
-    height = serializers.SerializerMethodField()
-    width = serializers.SerializerMethodField()
-    depth = serializers.SerializerMethodField()
+    order_id = serializers.CharField(source='order.id')
+    order_detail_id = serializers.IntegerField(source='id')
+    cell_id = serializers.IntegerField(source='cell.id')
+    cell_index = serializers.IntegerField(source='cell.cell_index')
+    cabinet_description = serializers.CharField(source='cell.cabinet.description')
+    location_detail = serializers.CharField(source='cell.cabinet.controller.location.location_detail')
+    order_date = serializers.DateTimeField(source='order.order_date')
+    start_date = serializers.DateTimeField(source='time_start')
+    end_date = serializers.DateTimeField(source='time_end')
+    height = serializers.FloatField(source='cell.height')
+    width = serializers.FloatField(source='cell.width')
+    depth = serializers.FloatField(source='cell.depth')
+    payment_method = serializers.SerializerMethodField()
 
     class Meta:
-        model = Order
-        fields = ['order_id', 'order_detail_id', 'cell_id', 'cell_index', 'cabinet_description', 'location_detail', 'order_date', 'start_date', 'end_date', 'height', 'width', 'depth']
+        model = OrderDetail
+        fields = ['order_id', 'order_detail_id', 'cell_id', 'cell_index', 'cabinet_description', 'location_detail',
+                  'order_date', 'start_date', 'end_date', 'height', 'width', 'depth', 'payment_method']
 
-    def get_height(self, obj):
-        return obj.orderdetail_set.first().cell.height
-
-    def get_width(self, obj):
-        return obj.orderdetail_set.first().cell.width
-
-    def get_depth(self, obj):
-        return obj.orderdetail_set.first().cell.depth
-
-    def get_order_detail_id(self, obj):
-        return obj.orderdetail_set.first().id
-
-    def get_cell_id(self, obj):
-        return obj.orderdetail_set.first().cell.id
-
-    def get_cell_index(self, obj):
-        return obj.orderdetail_set.first().cell.cell_index
-
-    def get_cabinet_description(self, obj):
-        return obj.orderdetail_set.first().cell.cabinet.description
-
-    def get_location_detail(self, obj):
-        return obj.orderdetail_set.first().cell.cabinet.controller.location.location_detail
-
-    def get_start_date(self, obj):
-        return obj.orderdetail_set.first().time_start
-
-    def get_end_date(self, obj):
-        return obj.orderdetail_set.first().time_end
+    def get_payment_method(self, obj):
+        try:
+            return PaymentMethod(obj.order.payment_method).name
+        except ValueError:
+            return ''
