@@ -1,3 +1,4 @@
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ValidationError
@@ -111,16 +112,28 @@ def get_cell_rent(request):
     response = {}
     paginator = CustomPageNumberPagination()
     if request_serializer.is_valid(raise_exception=True):
-        order_details = OrderDetail.objects.filter(user__id=user_id)
+        now = timezone.now()
+        order_details = OrderDetail.objects.filter(user__id=user_id,
+                                                   order__status=True)
         time_start = request_serializer.data.get('start_date')
         time_end = request_serializer.data.get('end_date')
         cell_id = request_serializer.data.get('cell_id')
         is_desc = request_serializer.data.get('is_desc')
+        is_rented = request_serializer.data.get('is_rented')
+        is_renting = request_serializer.data.get('is_renting')
+        is_ordered = request_serializer.data.get('is_ordered')
         if cell_id:
             order_details = order_details.filter(cell__id=cell_id)
         if time_start and time_end:
             order_details = order_details.filter(order__order_date__gte=time_start,
                                                  order__order_date__lte=time_end)
+        if not is_rented:
+            order_details = order_details.exclude(time_end__lt=now)
+        if not is_renting:
+            order_details = order_details.exclude(time_start__lte=now,
+                                                  time_end__gte=now)
+        if not is_ordered:
+            order_details = order_details.exclude(time_start__gt=now)
         if is_desc:
             order_details = order_details.order_by('-order__order_date')
         else:
@@ -129,6 +142,7 @@ def get_cell_rent(request):
             raise ValidationError({
                 'message': 'Không tìm thấy thông tin'
             })
+
         serializer = OrderByUserSerializer(order_details.distinct(), many=True)
 
         response = paginator.paginate_queryset(serializer.data, request)

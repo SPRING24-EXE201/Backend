@@ -11,7 +11,10 @@ class OrderCellRequestSerializer(serializers.Serializer):
     cell_id = serializers.IntegerField(required=False)
     start_date = serializers.DateTimeField(required=False)
     end_date = serializers.DateTimeField(required=False)
-    is_desc = serializers.BooleanField(required=False)
+    is_desc = serializers.BooleanField(required=False, default=False)
+    is_rented = serializers.BooleanField(required=False, default=True)
+    is_renting = serializers.BooleanField(required=False, default=True)
+    is_ordered = serializers.BooleanField(required=False, default=True)
 
     def validate(self, data):
         time_start = data.get('start_date')
