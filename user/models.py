@@ -50,7 +50,10 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-class Assignment(models.Model):
+class Event(models.Model):
     id = models.UUIDField(max_length=100, primary_key=True, default=uuid.uuid4)
+    dataId = models.CharField(max_length=100, null=True, blank=True)
+    timestamp = models.DateTimeField()
+    eventType = models.CharField(max_length=100, null=True, blank=True)
     email = models.EmailField(max_length=100)
-    status = models.BooleanField()
+    data = models.CharField(max_length=10000, null=True, blank=True)
