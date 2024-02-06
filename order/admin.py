@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from order.models import OrderDetail, Order
+from order.models import OrderDetail, Order, Assignment
 
 
 # Register your models here.
@@ -13,3 +13,7 @@ class OrderDetailAdmin(admin.ModelAdmin):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'total_amount', 'payment_method', 'order_date', 'status')
+
+@admin.register(Assignment)
+class AssignmentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'orderDetail_id', 'email', 'status')
