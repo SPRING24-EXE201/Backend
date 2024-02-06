@@ -43,3 +43,4 @@ class CampaignAdmin(admin.ModelAdmin):
 @admin.register(CampaignCabinet)
 class CampaignCabinetAdmin(admin.ModelAdmin):
     list_display = ('cabinet', 'campaign', 'description')
+
