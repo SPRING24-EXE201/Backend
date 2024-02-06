@@ -38,4 +38,9 @@ class GetCellAssignmentResponseSerializer(serializers.ModelSerializer):
     def get_full_name(self, obj):
         return obj.user.full_name if obj.user else None
 
+class AssignCellToUserRequestSerializer(serializers.Serializer):
+    cell_id = serializers.IntegerField(required=True)
+    assignee_email = serializers.EmailField(required=True)
+    status = serializers.BooleanField(required=True)
+
 
