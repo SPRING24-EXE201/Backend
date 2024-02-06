@@ -216,12 +216,12 @@ class Utils:
         return None
 
     @staticmethod
-    def send_notification(title, content, data):
-        topic = SystemConstants.notification_svb_topic
+    def send_notification(title, content, data, user_id):
+        config_type= SystemConstants.notification_config_type
         message = {
+            'user_id': user_id,
             'title': title,
             'content': content,
             'data': data
         }
-        handler_message(str(message), topic)
-        
+        handler_message(str(message), config_type=config_type)
