@@ -282,3 +282,8 @@ AUTHENTICATION_BACKENDS = [
     'exe201_backend.authentication_backend.AppAuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend'
 ]
+COSMOS_DB_URI = os.environ.get('COSMOS_DB_URI')
+COSMOS_DB_KEY = os.environ.get('COSMOS_DB_KEY')
+COSMOS_DB_NAME = os.environ.get('COSMOS_DB_NAME')
+COSMOS_DB_NOTI_DEVICE_CONTAINER = os.environ.get('COSMOS_DB_NOTI_DEVICE_CONTAINER')
+COSMOS_DB_SERVICE_BUS_CONFIG_CONTAINER = os.environ.get('COSMOS_DB_SERVICE_BUS_CONFIG_CONTAINER')
