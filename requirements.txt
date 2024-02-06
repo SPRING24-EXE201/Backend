@@ -63,3 +63,4 @@ jsonschema~=4.20.0
 azure-core==1.29.7
 azure-servicebus==7.11.4
 isodate==0.6.1
+azure-cosmos==4.5.1
