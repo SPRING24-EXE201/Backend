@@ -6,3 +6,4 @@ class SystemConstants:
     from_email_address = 'ibox.customerservice@gmail.com'
     timezone = timezone('Asia/Saigon')
     notification_config_type = 'Notification'
+    controller_config_type = 'Controller'
