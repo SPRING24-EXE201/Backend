@@ -182,18 +182,18 @@ class Utils:
         return len(empty_cells)
 
     @staticmethod
-    def get_user_own_cell(cell_id):
+    def get_user_own_cell(hash_code):
         """
         Get user being in possession of cell
-        :param cell_id: int
+        :param hash_code: UUID
         :return: User
         """
         user = None
-        if not cell_id:
+        if not hash_code:
             return None
         now = timezone.now()
         try:
-            cell_order_now = OrderDetail.objects.get(cell__id=cell_id,
+            cell_order_now = OrderDetail.objects.get(cell__hash_code=hash_code,
                                                      time_start__lte=now,
                                                      time_end__gte=now,
                                                      order__status=True)
@@ -225,3 +225,18 @@ class Utils:
             'data': data
         }
         handler_message(str(message), config_type=config_type)
+
+    @staticmethod
+    def send_command(hash_code):
+        """
+        :exception: Cell.DoesNotExist
+        """
+        config_type = SystemConstants.controller_config_type
+        cell = Cell.objects.get(hash_code=hash_code)
+        controller_id = cell.cabinet.controller.id
+        message = {
+            'controller_id': controller_id,
+            'hash_code': hash_code,
+            'cell_index': cell.cell_index
+        }
+        handler_message(message=str(message), config_type=config_type, controller_id=controller_id)
