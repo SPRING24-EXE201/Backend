@@ -14,6 +14,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from demoproject.demoproject.settings import PROJECT_ROOT
 from django.conf import settings
 from dotenv import load_dotenv
 import os
@@ -36,7 +37,6 @@ DEBUG = os.getenv('DEBUG', True)
 ALLOWED_HOSTS = ['*']
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
