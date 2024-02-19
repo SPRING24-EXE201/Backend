@@ -19,7 +19,7 @@ jobs:
       - name: Pull Docker image
         run: sudo docker pull baominh/exe201_backend:latest
       - name: Delete Old docker container
-        run: sudo docker image prune -f
+        run: sudo docker rm -f exe201_backend-container || true
       - name: Run Docker Container
         run:
           sudo docker run --name exe201_backend-container -d -p 80:8000 -e DB_NAME='${{secrets.DB_NAME}}' -e EMAIL_HOST_PASSWORD='${{secrets.EMAIL_HOST_PASSWORD}}' -e DEBUG=False -e DB_USER='${{secrets.DB_USER}}' -e DB_PASSWORD='${{secrets.DB_PASSWORD}}' -e DB_HOST='${{secrets.DB_HOST}}' -e DB_PORT='5432' -e SERVICE_BUS_CON='${{secrets.SERVICE_BUS_CON}}' -e SERVICE_BUS_TOPIC_NAME='handler' -e COSMOS_DB_URI='${{secrets.COSMOS_DB_URI}}' -e COSMOS_DB_KEY='${{secrets.COSMOS_DB_KEY}}' -e COSMOS_DB_NAME='ibox-dev' -e COSMOS_DB_NOTI_DEVICE_CONTAINER='noti-device-token' -e COSMOS_DB_SERVICE_BUS_CONFIG_CONTAINER='service-bus-config' baominh/exe201_backend
