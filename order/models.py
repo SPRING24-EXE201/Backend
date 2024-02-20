@@ -27,8 +27,10 @@ class OrderDetail(models.Model):
     time_end = models.DateTimeField(null=True, blank=True, default=None)
     sub_total = models.FloatField()
 
-class Assignment(models.Model):
+class Event(models.Model):
     id = models.UUIDField(max_length=100, primary_key=True, default=uuid.uuid4)
     orderDetail = models.ForeignKey(OrderDetail, on_delete=models.CASCADE)
     email = models.EmailField(max_length=100)
     status = models.BooleanField()
+    data = models.CharField(max_length=10000, null=True, blank=True)
+

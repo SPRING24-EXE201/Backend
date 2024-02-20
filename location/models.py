@@ -73,5 +73,15 @@ class Location(models.Model):
     longitude = models.FloatField(null = True, blank = True)
     id = models.CharField(max_length=17, unique=True, default=location_custom_id, editable=False, primary_key=True)
 
+    def get_display_name(self):
+        if self.location_name:
+            return self.location_name
+        elif self.location_detail:
+            return self.location_detail
+        elif self.ward:
+            return str(self.ward)
+        else:
+            return "Unknown"
+
 
 
