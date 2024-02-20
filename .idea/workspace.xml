@@ -5,16 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="df7cec4b-5b45-44c6-860f-78ff32d24fbf" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/chartapp/templates/chartapp/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chartapp/templates/partials/base.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chartapp/templates/partials/nav.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chartapp/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exe201_backend/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/exe201_backend/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exe201_backend/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/exe201_backend/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/location/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/location/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/order/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/order/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chartapp/templates/partials/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/chartapp/templates/partials/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chartapp/templates/partials/nav.html" beforeDir="false" afterPath="$PROJECT_DIR$/chartapp/templates/partials/nav.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chartapp/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/chartapp/urls.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
