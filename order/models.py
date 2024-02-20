@@ -27,6 +27,7 @@ class OrderDetail(models.Model):
     time_end = models.DateTimeField(null=True, blank=True, default=None)
     sub_total = models.FloatField()
 
+
 class Event(models.Model):
     id = models.UUIDField(max_length=100, primary_key=True, default=uuid.uuid4)
     orderDetail = models.ForeignKey(OrderDetail, on_delete=models.CASCADE)

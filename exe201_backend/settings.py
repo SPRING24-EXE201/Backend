@@ -14,7 +14,6 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-from demoproject.demoproject.settings import PROJECT_ROOT
 from django.conf import settings
 from dotenv import load_dotenv
 import os
@@ -44,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'chartapp.apps.ChartappConfig',
 
     'user',
     'location',

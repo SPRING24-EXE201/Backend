@@ -1,0 +1,448 @@
+{% extends 'partials/base.html' %}
+
+{% block content %}
+
+    <div class="row mt-2">
+        <h1>{{ chart_title }}</h1>
+        <hr>
+        <div class="col-md-12 py-2">
+            <canvas id="myChart"></canvas>
+            <script>
+              const ctx = document.getElementById('myChart');
+              const events = {{ events|safe }};
+              const data_1 = events[0].map(event => (
+                { x: event.x, y: event.y }
+              ));
+              const data_2 = events[1].map(event => (
+                  { x: event.x, y: event.y }
+              ));
+              const label = '{{ label }}';
+              const chart_type = '{{ chart_type }}';
+
+              if (events[0].length === 0 && events[1].length === 0) {
+                ctx.innerHTML = '<h3 class="text-center">Không có dữ liệu</h3>';
+              }
+
+              const data = {
+                datasets: [
+                  {
+                    label: "Giao dịch thành công",
+                    data: data_1,
+                    borderWidth: 1
+                  },
+                  {
+                    label: "Giao dịch thất bại",
+                    data: data_2,
+                    borderWidth: 1
+                  }
+                ]
+              };
+
+              new Chart(ctx, {
+                type: chart_type,
+                data: data,
+                options: {
+                  scales: {
+                    y: {
+                      beginAtZero: true
+                    }
+                  }
+                }
+                });
+            </script>
+            <script>
+                let chart_base_field = '{{ chart_base_field }}';
+                let time_type = '{{ time_type }}';
+                let selected_location = {{ selected_location|safe }};
+                let start_datetime = '{{ start_datetime }}';
+                let end_datetime = '{{ end_datetime }}';
+                let start_time = '{{ start_time }}';
+                let end_time = '{{ end_time }}';
+
+            </script>
+            <script>
+                const change_time_type = (field) => {
+                    if (field === 'hours'){
+                        const hour_button_secondary = document.getElementById('btn-secondary-select-hour');
+                        const date_button_primary = document.getElementById('btn-primary-select-date');
+                        const month_button_primary = document.getElementById('btn-primary-select-month');
+                        const all_button_primary = document.getElementById('btn-primary-select-all');
+
+                        if (date_button_primary) {
+                            date_button_primary.classList.remove('btn-primary');
+                            date_button_primary.classList.add('btn-secondary');
+                            date_button_primary.id = 'btn-secondary-select-date';
+                        }
+
+                        if (all_button_primary) {
+                            all_button_primary.classList.remove('btn-primary');
+                            all_button_primary.classList.add('btn-secondary');
+                            all_button_primary.id = 'btn-secondary-select-all';
+                        }
+
+                        if (month_button_primary) {
+                            month_button_primary.classList.remove('btn-primary');
+                            month_button_primary.classList.add('btn-secondary');
+                            month_button_primary.id = 'btn-secondary-select-month';
+                        }
+
+                        if (hour_button_secondary) {
+                            hour_button_secondary.classList.remove('btn-secondary');
+                            hour_button_secondary.classList.add('btn-primary');
+                            hour_button_secondary.id = 'btn-primary-select-hour';
+                        }
+
+                        start_datetime = null;
+                        end_datetime = null;
+                        time_type = 'hours';
+                        document.getElementById('from').type = 'date';
+                        document.getElementById('to').type = 'date';
+                        document.getElementById('from').removeAttribute('readonly');
+                        document.getElementById('to').removeAttribute('readonly');
+                    }
+                    else if (field === 'date') {
+                        const date_button_secondary = document.getElementById('btn-secondary-select-date');
+                        const month_button_primary = document.getElementById('btn-primary-select-month');
+                        const all_button_primary = document.getElementById('btn-primary-select-all');
+                        const hour_button_primary = document.getElementById('btn-primary-select-hour');
+
+                        if (hour_button_primary) {
+                            hour_button_primary.classList.remove('btn-primary');
+                            hour_button_primary.classList.add('btn-secondary');
+                            hour_button_primary.id = 'btn-secondary-select-hour';
+                        }
+
+                        if (all_button_primary) {
+                            all_button_primary.classList.remove('btn-primary');
+                            all_button_primary.classList.add('btn-secondary');
+                            all_button_primary.id = 'btn-secondary-select-all';
+                        }
+
+                        if (month_button_primary) {
+                            month_button_primary.classList.remove('btn-primary');
+                            month_button_primary.classList.add('btn-secondary');
+                            month_button_primary.id = 'btn-secondary-select-month';
+                        }
+
+                        if (date_button_secondary) {
+                            date_button_secondary.classList.remove('btn-secondary');
+                            date_button_secondary.classList.add('btn-primary');
+                            date_button_secondary.id = 'btn-primary-select-date';
+                        }
+
+                        start_datetime = null;
+                        end_datetime = null;
+
+                        document.getElementById('from').type = 'date';
+                        document.getElementById('to').type = 'date';
+                        document.getElementById('from').removeAttribute('readonly');
+                        document.getElementById('to').removeAttribute('readonly');
+                         time_type = 'date';
+                    }
+                    else if (field === 'month') {
+                        const month_button_secondary = document.getElementById('btn-secondary-select-month');
+                        const date_button_primary = document.getElementById('btn-primary-select-date');
+                        const all_button_primary = document.getElementById('btn-primary-select-all');
+                        const hour_button_primary = document.getElementById('btn-primary-select-hour');
+
+                        if (hour_button_primary) {
+                            hour_button_primary.classList.remove('btn-primary');
+                            hour_button_primary.classList.add('btn-secondary');
+                            hour_button_primary.id = 'btn-secondary-select-hour';
+                        }
+
+                        if (all_button_primary) {
+                            all_button_primary.classList.remove('btn-primary');
+                            all_button_primary.classList.add('btn-secondary');
+                            all_button_primary.id = 'btn-secondary-select-all';
+                        }
+
+                        if (date_button_primary) {
+                            date_button_primary.classList.remove('btn-primary');
+                            date_button_primary.classList.add('btn-secondary');
+                            date_button_primary.id = 'btn-secondary-select-date';
+                        }
+
+                        if (month_button_secondary) {
+                            month_button_secondary.classList.remove('btn-secondary');
+                            month_button_secondary.classList.add('btn-primary');
+                            month_button_secondary.id = 'btn-primary-select-month';
+                        }
+
+                        start_datetime = null;
+                        end_datetime = null;
+                        time_type = 'month';
+                        document.getElementById('from').type = 'month';
+                        document.getElementById('to').type = 'month';
+                        document.getElementById('from').removeAttribute('readonly');
+                        document.getElementById('to').removeAttribute('readonly');
+                    }
+                    else {
+                        const all_button_secondary = document.getElementById('btn-secondary-select-all');
+                        const date_button_primary = document.getElementById('btn-primary-select-date');
+                        const month_button_primary = document.getElementById('btn-primary-select-month');
+                        const hour_button_primary = document.getElementById('btn-primary-select-hour');
+
+                        if (hour_button_primary) {
+                            hour_button_primary.classList.remove('btn-primary');
+                            hour_button_primary.classList.add('btn-secondary');
+                            hour_button_primary.id = 'btn-secondary-select-hour';
+                        }
+
+                        if (date_button_primary) {
+                            date_button_primary.classList.remove('btn-primary');
+                            date_button_primary.classList.add('btn-secondary');
+                            date_button_primary.id = 'btn-secondary-select-date';
+                        }
+
+                        if (month_button_primary) {
+                            month_button_primary.classList.remove('btn-primary');
+                            month_button_primary.classList.add('btn-secondary');
+                            month_button_primary.id = 'btn-secondary-select-month';
+                        }
+
+                        if (all_button_secondary) {
+                            all_button_secondary.classList.remove('btn-secondary');
+                            all_button_secondary.classList.add('btn-primary');
+                            all_button_secondary.id = 'btn-primary-select-all';
+                        }
+
+                        start_datetime = null;
+                        end_datetime = null;
+                        time_type = 'all';
+                        document.getElementById('from').type = 'month';
+                        document.getElementById('to').type = 'month';
+
+                        document.getElementById('from').setAttribute('readonly', 'readonly');
+                        document.getElementById('to').setAttribute('readonly', 'readonly');
+                    }
+
+                    const select_time_end = document.getElementById('select-time-end');
+                    const select_time_start = document.getElementById('select-time-start');
+                    if (time_type === 'hours') {
+                        select_time_end.style.display = 'block';
+                        select_time_start.style.display = 'block';
+                    } else {
+                        select_time_end.style.display = 'none';
+                        select_time_start.style.display = 'none';
+                    }
+                }
+                const change_start_datetime = (event) => {
+                    const selectedDate = event.target.value; // Lấy giá trị ngày đã chọn từ trường input date
+                    const parts = selectedDate.split('-'); // Tách ngày thành các phần theo dấu gạch ngang
+
+                    if (parts.length === 3) {
+                        const newDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                        start_datetime = newDate; // Cập nhật giá trị ngày mới
+                    } else if (parts.length === 2) {
+                        const newDate = `${parts[1]}-${parts[0]}`;
+                        start_datetime = newDate; // Cập nhật giá trị ngày mới
+                    }
+
+                }
+                const change_end_datetime = (event) => {
+                    const selectedDate = event.target.value; // Lấy giá trị ngày đã chọn từ trường input date
+                    const parts = selectedDate.split('-'); // Tách ngày thành các phần theo dấu gạch ngang
+
+                    if (parts.length === 3) {
+                        const newDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                        end_datetime = newDate; // Cập nhật giá trị ngày mới
+                    } else if (parts.length === 2) {
+                        const newDate = `${parts[1]}-${parts[0]}`;
+                        end_datetime = newDate; // Cập nhật giá trị ngày mới
+                    }
+                }
+                const change_start_time = (event) => {
+                    console.log(event.target.value);
+                    start_time = event.target.value;
+                }
+                const change_end_time = (event) => {
+                    console.log(event.target.value);
+                    end_time = event.target.value;
+                }
+                const change_location = (event) => {
+                    const isChecked = event.target.checked;
+                    const value = event.target.value;
+                    if (isChecked) {
+                        selected_location = selected_location.concat(value);
+                    } else {
+                        selected_location = selected_location.filter(item => item !== value);
+                    }
+                }
+            </script>
+            <script>
+                const filter_data = () => {
+                    if (chart_base_field === 'time') {
+                        let path = `?time-type=${time_type}`
+                        if (start_time) {
+                            path += `&start-time=${start_time}`;
+                        }
+                        if (end_time) {
+                            path += `&end-time=${end_time}`;
+                        }
+                        if (start_datetime) {
+                            path += `&start-date=${start_datetime}`;
+                        }
+                        if (end_datetime) {
+                            path += `&end-date=${end_datetime}`;
+                        }
+                        window.location.href = path;
+                    } else if (chart_base_field === 'location') {
+                        let path = `?chart-base-field=location&selected-location=${selected_location}`;
+                        if (time_type && time_type !== 'all') {
+                            path += `&time-type=${time_type}`;
+                        }
+                        if (start_datetime) {
+                            path += `&start-date=${start_datetime}`;
+                        }
+                        if (end_datetime) {
+                            path += `&end-date=${end_datetime}`;
+                        }
+                        window.location.href = path;
+                    }
+                }
+            </script>
+        </div>
+            <div class="col-md-12 mt-5">
+                <h2>Filter Data</h2>
+                <hr>
+                <div class="mt-0">
+                    <h5>Biểu đồ theo</h5>
+                    <div>
+                        {% if chart_base_field == 'time' %}
+                        <a href="?" class="btn btn-primary">Theo thời gian</a>
+                        {% else %}
+                            <a href="?" class="btn btn-secondary">Theo thời gian</a>
+                        {% endif %}
+
+                        {% if chart_base_field == 'location' %}
+                        <a href="?chart-base-field=location" class="btn btn-primary">Theo địa điểm</a>
+                        {% else %}
+                            <a href="?chart-base-field=location" class="btn btn-secondary">Theo địa điểm</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+                <div class="mt-2">
+                    <h5>Biểu đồ theo thời gian</h5>
+                    <div id="chart_base_field">
+                        {% if time_type == 'date' %}
+                        <button id="btn-primary-select-date" onclick="change_time_type('date')" class="btn btn-primary">Theo ngày</button>
+                        {% else %}
+                            <button id="btn-secondary-select-date" class="btn btn-secondary" onclick="change_time_type('date')">Theo ngày</button>
+                        {% endif %}
+
+                        {% if time_type == 'month' %}
+                        <button id="btn-primary-select-month" onclick="change_time_type('month')" class="btn btn-primary">Theo tháng</button>
+                        {% else %}
+                            <button id="btn-secondary-select-month" class="btn btn-secondary" onclick="change_time_type('month')">Theo tháng</button>
+                        {% endif %}
+
+                        {% if time_type == 'hours' %}
+                        <button id="btn-primary-select-hour" onclick="change_time_type('hours')" class="btn btn-primary">Theo giờ </button>
+                        {% else %}
+                            <button id="btn-secondary-select-hour" class="btn btn-secondary" onclick="change_time_type('hours')">Theo giờ </button>
+                        {% endif %}
+
+                        {% if chart_base_field == 'location' %}
+                            {% if time_type == 'all' %}
+                            <button id="btn-primary-select-all" onclick="change_time_type()" class="btn btn-primary">Tất cả</button>
+                            {% else %}
+                                <button id="btn-secondary-select-all" onclick="change_time_type()" class="btn btn-secondary">Tất cả</button>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div id="select-date" class="row mt-2">
+                    <div class="col-md-3">
+                        <div class="form-group" >
+                            <label for="from">Ngày/tháng Bắt đầu</label>
+                            {% if time_type == "hours" %}
+                                <input type="date" class="form-control" onchange="change_start_datetime(event)" id="from" name="from" value="{{ start_datetime }}">
+                            {% else %}
+                                <input type="{{ time_type }}" class="form-control" onchange="change_start_datetime(event)" id="from" name="from" value="{{ start_datetime }}">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group" >
+                            <label for="to">Ngày/tháng Kết thúc</label>
+                            {% if time_type == "hours" %}
+                                <input type="date" class="form-control" id="to" onchange="change_end_datetime(event)" name="to" value="{{ end_datetime }}">
+                            {% else %}
+                                <input type="{{ time_type }}" class="form-control" id="to" onchange="change_end_datetime(event)" name="to" value="{{ end_datetime }}">
+                            {% endif %}                        </div>
+                    </div>
+                     <div class="col-md-3">
+                        <div id="select-time-start" class="form-group" >
+                            <label for="to">Thời gian ngày bắt đầu</label>
+                            <input type="time" class="form-control" onchange="change_start_time(event)" name="to" value="{{ start_time }}">
+                        </div>
+                    </div>
+                    <div id="select-time-end" class="col-md-3">
+                        <div class="form-group" >
+                            <label for="to">Thời gian ngày Kết thúc</label>
+                            <input type="time" class="form-control" onchange="change_end_time(event)" name="to" value="{{ end_time }}">
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div id="location_div" class="mt-2">
+                    <h5>Biểu đồ theo địa điểm</h5>
+                    <div>
+                        {% for location in location_list_render %}
+                            <input type="checkbox" id="{{ location.id }}" onchange="change_location(event)" name="locations"value="{{ location.id }}" {% if location.id in selected_location %} checked {% endif %}>
+                            <label for="{{ location.id }}">{{ location.name }}</label><br>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <button type="submit" onclick="filter_data()" class="btn btn-primary mt-3">Lọc</button>
+        </div>
+        <script>
+            const select_date = document.getElementById('select-date');
+            const location_div = document.getElementById('location_div');
+            const select_time_end = document.getElementById('select-time-end');
+            const select_time_start = document.getElementById('select-time-start');
+
+            if (chart_base_field === 'time') location_div.innerHTML = ""
+            let selectedDate =start_datetime; // Lấy giá trị ngày đã chọn từ trường input date
+            let parts = selectedDate.split('-'); // Tách ngày thành các phần theo dấu gạch ngang
+
+            if (time_type === 'hours') {
+                select_time_end.style.display = 'block';
+                select_time_start.style.display = 'block';
+            } else {
+                select_time_end.style.display = 'none';
+                select_time_start.style.display = 'none';
+            }
+
+            if (parts.length === 3) {
+                const newDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                start_datetime = newDate; // Cập nhật giá trị ngày mới
+            } else if (parts.length === 2) {
+                const newDate = `${parts[1]}-${parts[0]}`;
+                start_datetime = newDate; // Cập nhật giá trị ngày mới
+            }
+
+            selectedDate = end_datetime; // Lấy giá trị ngày đã chọn từ trường input date
+            parts = selectedDate.split('-'); // Tách ngày thành các phần theo dấu gạch ngang
+
+            if (parts.length === 3) {
+                const newDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                end_datetime = newDate; // Cập nhật giá trị ngày mới
+            } else if (parts.length === 2) {
+                const newDate = `${parts[1]}-${parts[0]}`;
+                end_datetime = newDate; // Cập nhật giá trị ngày mới
+            }
+
+            if (time_type === 'all'){
+                document.getElementById('from').type = 'month';
+                document.getElementById('to').type = 'month';
+                document.getElementById('from').setAttribute('readonly', 'readonly');
+                document.getElementById('to').setAttribute('readonly', 'readonly');
+            }
+        </script>
+    </div>
+
+{% endblock %}
