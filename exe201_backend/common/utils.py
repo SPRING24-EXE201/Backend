@@ -217,14 +217,14 @@ class Utils:
 
     @staticmethod
     def send_notification(title, content, data, user_id):
-        config_type= SystemConstants.notification_config_type
+        config_type = SystemConstants.notification_config_type
         message = {
             'user_id': user_id,
             'title': title,
             'content': content,
             'data': data
         }
-        handler_message(str(message), config_type=config_type)
+        handler_message(message, config_type=config_type)
 
     @staticmethod
     def send_command(hash_code):
@@ -239,4 +239,4 @@ class Utils:
             'hash_code': hash_code,
             'cell_index': cell.cell_index
         }
-        handler_message(message=str(message), config_type=config_type, controller_id=controller_id)
+        handler_message(message=message, config_type=config_type, controller_id=controller_id)

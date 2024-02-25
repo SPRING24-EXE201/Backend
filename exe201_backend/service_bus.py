@@ -1,3 +1,5 @@
+import json
+
 from azure.servicebus import ServiceBusClient
 from azure.servicebus import ServiceBusMessage
 from exe201_backend import settings
@@ -6,7 +8,7 @@ from exe201_backend.common.cosmosDB.access import CosmosDBAccess
 
 
 def send_single_message(sender, message, authorization_key):
-    message_svb = ServiceBusMessage(message)
+    message_svb = ServiceBusMessage(json.dumps(message), content_type='application/json')
     if authorization_key:
         message_svb.application_properties = {
             'Authorization': authorization_key
