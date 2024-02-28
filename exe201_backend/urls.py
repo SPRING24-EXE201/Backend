@@ -17,12 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from .views import get_json_file
 
 urlpatterns = [
     path('api/v1/', include('location.root_urls')),
     path('api/v1/', include('cabinet.root_urls')),
     path('api/v1/order/', include('order.root_urls')),
     path('api/v1/user/', include('user.root_urls')),
+    path('.well-known/assetlinks.json', get_json_file),
 
     # API Schema:
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
