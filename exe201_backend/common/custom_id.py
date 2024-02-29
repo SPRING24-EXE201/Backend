@@ -1,3 +1,6 @@
+from django.db.models import Max
+from django.template.defaultfilters import default
+
 
 def location_custom_id():
     from location.models import Location
@@ -22,3 +25,11 @@ def ward_custom_id():
     id = Ward.objects.all().count() + 1
     string_id = str(id)
     return string_id
+
+def payment_order_id():
+    from order.models import Order
+    no = Order.objects.all().aggregate(Max('payment_order_id', default=0))
+    if not no:
+        return 1
+    else:
+        return no.get('payment_order_id__max') + 1
