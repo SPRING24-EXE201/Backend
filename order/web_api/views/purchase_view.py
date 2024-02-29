@@ -1,5 +1,8 @@
+import math
+
 from django.db import transaction
 from drf_spectacular.utils import extend_schema
+from payos import ItemData, PaymentData
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -19,9 +22,10 @@ from order.web_api.serializers.purchase_serializer import PurchaseRequestListSer
 @permission_classes([IsAuthenticated])
 def process_purchase(request):
     serializer = PurchaseRequestListSerializer(data=request.data)
+    payos_response = ''
     if serializer.is_valid(raise_exception=True):
         # Dummy payment_method = 1, waiting for implement payment
-        new_order = Order(total_amount=0, payment_method=1, status=True)
+        new_order = Order(total_amount=0, payment_method=1, status=False)
         order_detail_list = []
         for detail in serializer.validated_data:
             hash_code = detail.get('hash_code')
@@ -52,6 +56,14 @@ def process_purchase(request):
                 })
         new_order.save()
         OrderDetail.objects.bulk_create(order_detail_list)
+        # Call PayOS to create purchase URL
+        payos_items = [ItemData(name=detail.cell.__str__(), quantity=1, price=math.ceil(detail.sub_total))
+                       for detail in order_detail_list]
+        payment_data = PaymentData(orderCode=new_order.payment_order_id, amount=math.ceil(new_order.total_amount),
+                                   description=f'Thuê {order_detail_list[0].cell.cabinet.description}',
+                                   items=payos_items, cancelUrl=request.build_absolute_uri('/payos-purchase/cancel'),
+                                   returnUrl=request.build_absolute_uri('/payos-purchase/success'))
+        payos_response = Utils.get_payos_client().createPaymentLink(payment_data)
     return Response({
-        'message': 'Thanh toán thành công!'
+        'purchase_url': payos_response.checkoutUrl
     })

@@ -6,8 +6,10 @@ from datetimerange import DateTimeRange
 from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.utils import timezone
+from payos import PayOS
 
 from cabinet.models import CostVersion, Cell, CampaignCabinet, Campaign
+from exe201_backend import settings
 from exe201_backend.common.constants import SystemConstants
 from exe201_backend.service_bus import handler_message
 from order.models import OrderDetail
@@ -240,3 +242,8 @@ class Utils:
             'cell_index': cell.cell_index
         }
         handler_message(message=message, config_type=config_type, controller_id=controller_id)
+
+    @staticmethod
+    def get_payos_client():
+        return PayOS(client_id=settings.PAYOS_CLIENT_ID, api_key=settings.PAYOS_API_KEY,
+                     checksum_key=settings.PAYOS_CHECKSUM_KEY)
