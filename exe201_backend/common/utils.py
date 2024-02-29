@@ -12,7 +12,7 @@ from cabinet.models import CostVersion, Cell, CampaignCabinet, Campaign
 from exe201_backend import settings
 from exe201_backend.common.constants import SystemConstants
 from exe201_backend.service_bus import handler_message
-from order.models import OrderDetail
+from order.models import OrderDetail, Assignment
 
 
 class Utils:
@@ -184,13 +184,20 @@ class Utils:
         return len(empty_cells)
 
     @staticmethod
-    def get_user_own_cell(hash_code):
+    def get_user_can_open_cell(hash_code):
         """
-        Get user being in possession of cell
+        Get user being in permission opening cell
         :param hash_code: UUID
-        :return: User
+        :return:
+            Dict{
+                'user_own_cell' : User
+                'assigned_users': [emails]
+            }
+
         """
         user = None
+        assigned_users = []
+        response = None
         if not hash_code:
             return None
         now = timezone.now()
@@ -200,9 +207,15 @@ class Utils:
                                                      time_end__gte=now,
                                                      order__status=True)
             user = cell_order_now.user
+            assigned_users = list(
+                Assignment.objects.filter(orderDetail__id=cell_order_now.id).values_list('email', flat=True))
+            response = {
+                'user_own_cell': user,
+                'assigned_users': assigned_users
+            }
         except OrderDetail.DoesNotExist:
-            user = None
-        return user
+            response = None
+        return response
 
     @staticmethod
     def validate_order_time(time_start, time_end):
