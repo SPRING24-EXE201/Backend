@@ -32,7 +32,7 @@ urlpatterns = [
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
-    path('admin/chart-app', include('chartapp.urls')),
+    path('admin/chart-app/', include('chartapp.urls')),
     path('admin/', admin.site.urls),
 ]
 
