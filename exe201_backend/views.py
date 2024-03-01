@@ -4,6 +4,7 @@ from django.http import FileResponse, HttpResponse
 from rest_framework.decorators import api_view
 
 from exe201_backend.common.constants import SystemConstants
+from exe201_backend.common.utils import Utils
 from order.models import Order
 
 
@@ -27,9 +28,16 @@ def success_payment(request, payment_order_id):
     pay_os_info = SystemConstants.payos_client.getPaymentLinkInformation(payment_order_id)
     try:
         if pay_os_info and pay_os_info.status == 'PAID':
-            user = Order.objects.get(payment_order_id=payment_order_id)
-
+            order = Order.objects.get(payment_order_id=payment_order_id)
+            user = order.orderdetail_set.all()[0].user
+            order.status = True
+            order.save()
+            # Send notification
+            Utils.send_notification('Thanh toán thành công', f'Cảm ơn {user.full_name} đã tin dùng iBox', None,
+                                user.id)
             status = 200
+        else:
+            status = 400
     except Order.DoesNotExist:
         status = 400
     return HttpResponse(status=status)

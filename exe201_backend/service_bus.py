@@ -7,6 +7,12 @@ from exe201_backend.common.constants import SystemConstants
 from exe201_backend.common.cosmosDB.access import CosmosDBAccess
 
 
+class ServiceBus:
+    servicebus_client = ServiceBusClient.from_connection_string(
+            conn_str=settings.SERVICE_BUS_CON,
+            logging_enable=True)
+
+
 def send_single_message(sender, message, authorization_key):
     message_svb = ServiceBusMessage(json.dumps(message), content_type='application/json')
     if authorization_key:
@@ -18,17 +24,12 @@ def send_single_message(sender, message, authorization_key):
 
 
 def handler_message(message, config_type, controller_id=None):
-    connection_str = settings.SERVICE_BUS_CON
     config = CosmosDBAccess.get_config(controller_id, config_type)
     if not config:
         raise ValueError('Không tìm thấy thông tin config')
 
-    with ServiceBusClient.from_connection_string(
-            conn_str=connection_str,
-            logging_enable=True,
-    ) as servicebus_client:
-        # Get a Topic Sender object to send messages to the topic
-        sender = servicebus_client.get_topic_sender(topic_name=config.topic_name)
-        with sender:
-            # Send one message
-            send_single_message(sender=sender, message=message, authorization_key=config.authorization_key)
+    # Get a Topic Sender object to send messages to the topic
+    sender = ServiceBus.servicebus_client.get_topic_sender(topic_name=config.topic_name)
+    with sender:
+        # Send one message
+        send_single_message(sender=sender, message=message, authorization_key=config.authorization_key)
