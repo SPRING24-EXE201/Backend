@@ -31,6 +31,7 @@ def otp_confirm(request):
                 refresh['email'] = user.email
                 refresh['image_link'] = user.image_link
                 refresh['address'] = user.address
+                refresh['user_id'] = user.id
                 data = {
                     'access': str(refresh.access_token),
                     'refresh': str(refresh),
