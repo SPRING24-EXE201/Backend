@@ -32,11 +32,14 @@ def otp_confirm(request):
                 refresh['image_link'] = user.image_link
                 refresh['address'] = user.address
                 refresh['user_id'] = user.id
+
                 data = {
                     'access': str(refresh.access_token),
-                    'refresh': str(refresh),
+                    'refresh': str(refresh),  
                 }
+
                 status_code = 200
+                
             else:
                 raise User.DoesNotExist
     except User.DoesNotExist as e:
