@@ -55,6 +55,7 @@ def update_user(request):
 
             data = response_serializers.data
             status_code = 200
+
             
     except User.DoesNotExist as e:
         data = {'message': "User không tồn tại"}
