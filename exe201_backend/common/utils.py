@@ -255,8 +255,3 @@ class Utils:
             'cell_index': cell.cell_index
         }
         handler_message(message=message, config_type=config_type, controller_id=controller_id)
-
-    @staticmethod
-    def get_payos_client():
-        return PayOS(client_id=settings.PAYOS_CLIENT_ID, api_key=settings.PAYOS_API_KEY,
-                     checksum_key=settings.PAYOS_CHECKSUM_KEY)

@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from cabinet.models import Cell, CostVersion, Campaign
+from exe201_backend.common.constants import SystemConstants
 from exe201_backend.common.utils import Utils
 from order.models import Order, OrderDetail
 from order.web_api.serializers.purchase_serializer import PurchaseRequestListSerializer
@@ -63,7 +64,7 @@ def process_purchase(request):
                                    description=f'Thuê {order_detail_list[0].cell.cabinet.description}',
                                    items=payos_items, cancelUrl=request.build_absolute_uri('/payos-purchase/cancel'),
                                    returnUrl=request.build_absolute_uri('/payos-purchase/success'))
-        payos_response = Utils.get_payos_client().createPaymentLink(payment_data)
+        payos_response = SystemConstants.payos_client.createPaymentLink(payment_data)
     return Response({
         'purchase_url': payos_response.checkoutUrl
     })
