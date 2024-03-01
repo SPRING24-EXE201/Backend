@@ -12,6 +12,8 @@ from django.http import JsonResponse
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied
+
+
 @extend_schema(
     parameters=[
         OpenApiParameter(name='cell_id', required=True, type=OpenApiTypes.INT32, location=OpenApiParameter.QUERY),
@@ -25,18 +27,18 @@ def get_cell_assignment(request):
     try:
         serializer = GetCellAssignmentRequestSerializer(data=request.query_params)
         if serializer.is_valid():
-            cell_id =  serializer.data.get('cell_id')
+            cell_id = serializer.data.get('cell_id')
 
             access_token = request.auth
             user_id = access_token['user_id']
 
             time_now = timezone.now()
-            order_detail =  OrderDetail.objects.get(cell__id=cell_id,
-                                                     time_start__lte=time_now,
-                                                     time_end__gte=time_now,
-                                                     order__status=True,
-                                                     user__id=user_id
-                                                    )
+            order_detail = OrderDetail.objects.get(cell__id=cell_id,
+                                                   time_start__lte=time_now,
+                                                   time_end__gte=time_now,
+                                                   order__status=True,
+                                                   user__id=user_id
+                                                   )
 
             cell_assignment_serializer = GetCellAssignmentResponseSerializer(order_detail, many=False)
             data = cell_assignment_serializer.data
@@ -54,6 +56,7 @@ def get_cell_assignment(request):
     finally:
         return Response(data, status=status_code)
 
+
 def validate_assignee(email, cell_id, assignee_email):
     if (email == assignee_email):
         raise PermissionDenied
@@ -61,6 +64,7 @@ def validate_assignee(email, cell_id, assignee_email):
     user_assignee = User.objects.get(email=assignee_email)
 
     cell_assigned = Cell.objects.get(id=cell_id)
+
 
 def get_order_detail(email, user_id, cell_id, assignee_email):
     validate_assignee(email, cell_id, assignee_email)
@@ -75,19 +79,23 @@ def get_order_detail(email, user_id, cell_id, assignee_email):
                                            )
     return order_detail
 
+
 def assign_cell(assignee):
-    if (assignee is None):
-        assignee = Assignment()
-        assignee.email = assignee_email
-        assignee.orderDetail = order_detail
-        assignee.status = True
+    if not assignee:
+        return None
     else:
         assignee.status = True
+    assignee.save()
     return {'message': "Cấp quyền thành công"}
 
+
 def unassign_cell(assignee):
+    if not assignee:
+        return None
     assignee.status = False
-    return  {'message': "Xóa quyền thành công"}
+    assignee.save()
+    return {'message': "Xóa quyền thành công"}
+
 
 @extend_schema(
     request={'application/json': AssignCellToUserRequestSerializer}
@@ -96,6 +104,8 @@ def unassign_cell(assignee):
 @permission_classes([IsAuthenticated])
 def assign_cell_to_user(request):
     try:
+        data = {}
+        status_code = 200
         serializer = AssignCellToUserRequestSerializer(data=request.data)
         if serializer.is_valid():
             cell_id = serializer.validated_data.get('cell_id')
@@ -105,18 +115,26 @@ def assign_cell_to_user(request):
             email = access_token['email']
             user_id = access_token['user_id']
 
-            #validation
+            # validation
             order_detail = get_order_detail(email, user_id, cell_id, assignee_email)
 
-            #use get here will automatically raise exception not exist
-            assignee = Assignment.objects.filter(email=assignee_email, orderDetail__id = order_detail.id).first()
-            if (status == True):
-                data = assign_cell(assignee)
+            # use get here will automatically raise exception not exist
+            assignee = Assignment.objects.filter(email=assignee_email, orderDetail__id=order_detail.id).first()
+            if status:
+                if not assignee:
+                    assignee = Assignment()
+                    assignee.email = assignee_email
+                    assignee.orderDetail = assignee.orderDetail
+                if assignee.status:
+                    data = {'message': 'Đã cấp quyền trước đó'}
+                    status_code = 200
+                else:
+                    data = assign_cell(assignee)
             else:
                 data = unassign_cell(assignee)
-
-            assignee.save()
-            status_code = 200
+                if not data:
+                   status_code = 404
+                   data = {'message': 'Đã cấp quyền trước đó'}
     except PermissionDenied:
         data = {'message': "Không thể truy cập đến người thuê"}
         status_code = 400
@@ -129,7 +147,4 @@ def assign_cell_to_user(request):
     except Cell.DoesNotExist:
         data = {'message': "Tủ không tồn tại"}
         status_code = 400
-    finally:
-        return Response(data, status=status_code)
-
-
+    return Response(data, status=status_code)
