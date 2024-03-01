@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
-from .views import get_json_file
+from .views import get_json_file, success_payment
 
 urlpatterns = [
     path('api/v1/', include('location.root_urls')),
@@ -25,6 +25,7 @@ urlpatterns = [
     path('api/v1/order/', include('order.root_urls')),
     path('api/v1/user/', include('user.root_urls')),
     path('.well-known/assetlinks.json', get_json_file),
+    path('payos-purchase/success/<int:payment_order_id>', success_payment),
 
     # API Schema:
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

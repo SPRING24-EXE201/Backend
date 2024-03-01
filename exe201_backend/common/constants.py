@@ -1,4 +1,7 @@
+from payos import PayOS
 from pytz import timezone
+
+from exe201_backend import settings
 
 
 class SystemConstants:
@@ -7,3 +10,5 @@ class SystemConstants:
     timezone = timezone('Asia/Saigon')
     notification_config_type = 'Notification'
     controller_config_type = 'Controller'
+    payos_client = PayOS(client_id=settings.PAYOS_CLIENT_ID, api_key=settings.PAYOS_API_KEY,
+                         checksum_key=settings.PAYOS_CHECKSUM_KEY)
