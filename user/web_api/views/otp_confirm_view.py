@@ -38,12 +38,14 @@ def otp_confirm(request):
                 }
 
                 status_code = 200
-                
+
             else:
                 raise User.DoesNotExist
     except User.DoesNotExist as e:
         data = {'message': "Email không tồn tại"}
         status_code = 400
     return JsonResponse(data, status=status_code)
+
+    
 
   
