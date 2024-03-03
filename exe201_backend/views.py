@@ -23,21 +23,20 @@ def get_json_file(request):
 
 @api_view(['GET'])
 def success_payment(request, payment_order_id):
-    status = 200
+    status = 400
     # Get Payment Info
     pay_os_info = SystemConstants.payos_client.getPaymentLinkInformation(payment_order_id)
     try:
         if pay_os_info and pay_os_info.status == 'PAID':
             order = Order.objects.get(payment_order_id=payment_order_id)
-            user = order.orderdetail_set.all()[0].user
-            order.status = True
-            order.save()
-            # Send notification
-            Utils.send_notification('Thanh toán thành công', f'Cảm ơn {user.full_name} đã tin dùng iBox', None,
-                                user.id)
-            status = 200
-        else:
-            status = 400
+            if not order.status:
+                user = order.orderdetail_set.all()[0].user
+                order.status = True
+                order.save()
+                # Send notification
+                Utils.send_notification('Thanh toán thành công', f'Cảm ơn {user.full_name} đã tin dùng iBox', None,
+                                        user.id)
+                status = 200
     except Order.DoesNotExist:
-        status = 400
+        pass
     return HttpResponse(status=status)
