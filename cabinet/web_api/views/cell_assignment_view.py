@@ -124,7 +124,7 @@ def assign_cell_to_user(request):
                 if not assignee:
                     assignee = Assignment()
                     assignee.email = assignee_email
-                    assignee.orderDetail = assignee.orderDetail
+                    assignee.orderDetail = order_detail
                 if assignee.status:
                     data = {'message': 'Đã cấp quyền trước đó'}
                     status_code = 200
