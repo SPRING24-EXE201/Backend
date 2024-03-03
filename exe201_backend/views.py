@@ -39,4 +39,9 @@ def success_payment(request, payment_order_id):
                 status = 200
     except Order.DoesNotExist:
         pass
-    return HttpResponse(status=status)
+    if status == 200:
+        # If payment is successful, render the pay_success.html template
+        return render(request, 'pay_success.html')
+    else:
+        # If payment is not successful or there's an error, return an empty response with status code 400
+        return HttpResponse(status=status)
