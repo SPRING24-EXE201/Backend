@@ -33,10 +33,10 @@ class OrderSerializer(serializers.ModelSerializer):
     payment_method = serializers.SerializerMethodField()
     class Meta:
         model = Order
-        fields = ['order_id', 'total_amount', 'payment_method', 'order_date', 'status']
+        fields = ['id', 'total_amount', 'payment_method', 'order_date', 'status']
     def get_payment_method(self, obj):
         try:
-            return PaymentMethod(obj.order.payment_method).name
+            return PaymentMethod(obj.payment_method).name
         except ValueError:
             return ''
 
