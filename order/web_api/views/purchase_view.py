@@ -63,7 +63,7 @@ def process_purchase(request):
         payment_data = PaymentData(orderCode=new_order.payment_order_id, amount=math.ceil(new_order.total_amount),
                                    description=f'Thuê {order_detail_list[0].cell.cabinet.description}',
                                    items=payos_items, cancelUrl=request.build_absolute_uri('/payos-purchase/cancel'),
-                                   returnUrl=request.build_absolute_uri('/payos-purchase/success'))
+                                   returnUrl=request.build_absolute_uri(f'/payos-purchase/success/{new_order.payment_order_id}'))
         payos_response = SystemConstants.payos_client.createPaymentLink(payment_data)
     return Response({
         'purchase_url': payos_response.checkoutUrl

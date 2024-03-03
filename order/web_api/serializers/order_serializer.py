@@ -30,18 +30,15 @@ class OrderCellRequestSerializer(serializers.Serializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    order_detail_id = serializers.IntegerField(source='id')
-    cell_index = serializers.IntegerField(source='cell.cell_index')
-    cabinet_description = serializers.CharField(source='cell.cabinet.description')
-    location_detail = serializers.CharField(source='cell.cabinet.controller.location.location_detail')
-    order_date = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S', source='order.order_date')
-    start_date = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S', source='time_start')
-    end_date = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S', source='time_end')
-
+    payment_method = serializers.SerializerMethodField()
     class Meta:
         model = Order
-        fields = ['id', 'total_amount', 'payment_method', 'order_date', 'status']
-
+        fields = ['order_id', 'total_amount', 'payment_method', 'order_date', 'status']
+    def get_payment_method(self, obj):
+        try:
+            return PaymentMethod(obj.order.payment_method).name
+        except ValueError:
+            return ''
 
 class OrderDetailSerializer(serializers.ModelSerializer):
     order_id = serializers.CharField(source='order.id', read_only=True)
