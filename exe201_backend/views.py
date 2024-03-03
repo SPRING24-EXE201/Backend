@@ -23,25 +23,26 @@ def get_json_file(request):
 
 @api_view(['GET'])
 def success_payment(request, payment_order_id):
-    status = 400
-    # Get Payment Info
-    pay_os_info = SystemConstants.payos_client.getPaymentLinkInformation(payment_order_id)
-    try:
-        if pay_os_info and pay_os_info.status == 'PAID':
-            order = Order.objects.get(payment_order_id=payment_order_id)
-            if not order.status:
-                user = order.orderdetail_set.all()[0].user
-                order.status = True
-                order.save()
-                # Send notification
-                Utils.send_notification('Thanh toán thành công', f'Cảm ơn {user.full_name} đã tin dùng iBox', None,
-                                        user.id)
-                status = 200
-    except Order.DoesNotExist:
-        pass
-    if status == 200:
-        # If payment is successful, render the pay_success.html template
         return render(request, 'pay_success.html')
-    else:
-        # If payment is not successful or there's an error, return an empty response with status code 400
-        return HttpResponse(status=status)
+    # status = 400
+    # # Get Payment Info
+    # pay_os_info = SystemConstants.payos_client.getPaymentLinkInformation(payment_order_id)
+    # try:
+    #     if pay_os_info and pay_os_info.status == 'PAID':
+    #         order = Order.objects.get(payment_order_id=payment_order_id)
+    #         if not order.status:
+    #             user = order.orderdetail_set.all()[0].user
+    #             order.status = True
+    #             order.save()
+    #             # Send notification
+    #             Utils.send_notification('Thanh toán thành công', f'Cảm ơn {user.full_name} đã tin dùng iBox', None,
+    #                                     user.id)
+    #             status = 200
+    # except Order.DoesNotExist:
+    #     pass
+    # if status == 200:
+    #     # If payment is successful, render the pay_success.html template
+    #     return render(request, 'pay_success.html')
+    # else:
+    #     # If payment is not successful or there's an error, return an empty response with status code 400
+    #     return HttpResponse(status=status)
