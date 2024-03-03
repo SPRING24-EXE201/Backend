@@ -83,5 +83,16 @@ class Location(models.Model):
         else:
             return "Unknown"
 
+    def __str__(self):
+        if self.location_name:
+            return self.location_name
+        elif self.location_detail:
+            return self.location_detail
+        elif self.ward:
+            return str(self.ward)
+        else:
+            return "Unknown"
+
+
 
 

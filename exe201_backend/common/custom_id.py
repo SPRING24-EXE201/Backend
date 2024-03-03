@@ -28,8 +28,8 @@ def ward_custom_id():
 
 def payment_order_id():
     from order.models import Order
-    no = Order.objects.all().aggregate(Max('payment_order_id', default=0))
+    no = Order.objects.all().aggregate(Max('payment_order_id', default=40))
     if not no:
-        return 1
+        return 40
     else:
         return no.get('payment_order_id__max') + 1

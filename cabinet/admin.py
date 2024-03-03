@@ -27,12 +27,12 @@ class CabinetTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Controller)
 class ControllerAdmin(admin.ModelAdmin):
-    list_display = ('location_id', 'name', 'kafka_id', 'topic', 'status')
+    list_display = ('location_id', 'name', 'status')
 
 
 @admin.register(Cell)
 class CellAdmin(admin.ModelAdmin):
-    list_display = ('cell_index', 'cabinet_id', 'width', 'height', 'depth')
+    list_display = ('cell_index', 'cabinet_id', 'hash_code', 'width', 'height', 'depth')
 
 
 @admin.register(Campaign)

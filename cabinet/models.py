@@ -10,8 +10,6 @@ from location.models import Location
 class Controller(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    kafka_id = models.CharField(max_length=100)
-    topic = models.CharField(max_length=100)
     status = models.BooleanField()
 
     def __str__(self):
@@ -88,7 +86,7 @@ class Cell(models.Model):
     depth = models.FloatField()
 
     def __str__(self):
-        return f'{self.cell_index} - Tủ {self.cabinet.description}'
+        return f'Ngăn {self.cell_index} - {self.cabinet.description}'
 
 
 class CellLog(models.Model):
