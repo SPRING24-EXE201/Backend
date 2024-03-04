@@ -112,11 +112,12 @@ def distance(l1, a1, l2, a2):
 @api_view(['GET'])
 def get_cabinet_nearby(request):
     try:
-        longitude = float(request.GET.get('longitude'))
-        latitude = float(request.GET.get('latitude'))
+        longitude = float(request.GET.get('longitude')) if request.GET.get('longitude') else None
+        latitude = float(request.GET.get('latitude')) if request.GET.get('latitude') else None
         queryset_locations = Location.objects.all()
         locations = list(queryset_locations)
-        locations = sorted(locations, key= lambda l: distance(longitude, latitude, l.longitude, l.latitude))
+        if longitude and latitude:
+            locations = sorted(locations, key= lambda l: distance(longitude, latitude, l.longitude, l.latitude))
         data = []
         for location in locations:
             cabinets = Cabinet.objects.select_related('controller__location').filter(controller__location__id= location.id)
