@@ -30,12 +30,18 @@ def get_cabinet_opening_view(request):
                 if (own_user and own_user.id == user.id) or (assigned_users and user.email in assigned_users):
                     can_open = True
                     if user.email == own_user.email:
-                        Utils.send_notification('Mở tủ thành công', f'{user.full_name} vừa mở {cell.__str__()}', None,
+                        Utils.send_notification('Mở tủ thành công',
+                                                f'{user.full_name if user.full_name else user.email} vừa mở {cell.__str__()}',
+                                                None,
                                                 user.id)
                     else:
-                        Utils.send_notification('Mở tủ thành công', f'{user.full_name} vừa mở {cell.__str__()}', None,
+                        Utils.send_notification('Mở tủ thành công',
+                                                f'{user.full_name if user.full_name else user.email} vừa mở {cell.__str__()}',
+                                                None,
                                                 user.id)
-                        Utils.send_notification('Mở tủ thành công', f'{user.full_name} vừa mở {cell.__str__()}', None,
+                        Utils.send_notification('Mở tủ thành công',
+                                                f'{user.full_name if user.full_name else user.email} vừa mở {cell.__str__()}',
+                                                None,
                                                 own_user.id)
                     Utils.send_command(hash_code)
                     data = 'Mở tủ thành công'

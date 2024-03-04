@@ -35,7 +35,9 @@ def success_payment(request, payment_order_id):
                 order.status = True
                 order.save()
                 # Send notification
-                Utils.send_notification('Thanh toán thành công', f'Cảm ơn {user.full_name} đã tin dùng iBox', None,
+                Utils.send_notification('Thanh toán thành công',
+                                        f'Cảm ơn {user.full_name if user.full_name else user.email} đã tin dùng iBox',
+                                        None,
                                         user.id)
                 status = 200
     except Order.DoesNotExist:
