@@ -3,6 +3,7 @@ import math
 from django.db import transaction
 from drf_spectacular.utils import extend_schema
 from payos import ItemData, PaymentData
+from payos.custom_error import PayOSError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -23,7 +24,7 @@ from order.web_api.serializers.purchase_serializer import PurchaseRequestListSer
 @permission_classes([IsAuthenticated])
 def process_purchase(request):
     serializer = PurchaseRequestListSerializer(data=request.data)
-    payos_response = ''
+    payos_response = None
     if serializer.is_valid(raise_exception=True):
         # Dummy payment_method = 1, waiting for implement payment
         new_order = Order(total_amount=0, payment_method=1, status=False)
@@ -55,16 +56,27 @@ def process_purchase(request):
                 raise ValidationError({
                     'message': error_message
                 })
-        new_order.save()
-        OrderDetail.objects.bulk_create(order_detail_list)
-        # Call PayOS to create purchase URL
-        payos_items = [ItemData(name=detail.cell.__str__(), quantity=1, price=math.ceil(detail.sub_total))
-                       for detail in order_detail_list]
-        payment_data = PaymentData(orderCode=new_order.payment_order_id, amount=math.ceil(new_order.total_amount),
-                                   description=f'Thuê {order_detail_list[0].cell.cabinet.description}',
-                                   items=payos_items, cancelUrl=request.build_absolute_uri('/payos-purchase/cancel'),
-                                   returnUrl=request.build_absolute_uri(f'/payos-purchase/success/{new_order.payment_order_id}'))
-        payos_response = SystemConstants.payos_client.createPaymentLink(payment_data)
+        # Retry
+        is_success = False
+        for i in range(10):
+            try:
+                # Call PayOS to create purchase URL
+                payos_items = [ItemData(name=detail.cell.__str__(), quantity=1, price=math.ceil(detail.sub_total))
+                               for detail in order_detail_list]
+                payment_data = PaymentData(orderCode=new_order.payment_order_id, amount=math.ceil(new_order.total_amount),
+                                           description=f'Thuê {order_detail_list[0].cell.cabinet.description}',
+                                           items=payos_items, cancelUrl=request.build_absolute_uri('/payos-purchase/cancel'),
+                                           returnUrl=request.build_absolute_uri(f'/payos-purchase/success/{new_order.payment_order_id}'))
+                payos_response = SystemConstants.payos_client.createPaymentLink(payment_data)
+                is_success = True
+                break
+            except PayOSError as e:
+                new_order.payment_order_id += 100
+        if is_success:
+            new_order.save()
+            OrderDetail.objects.bulk_create(order_detail_list)
+        else:
+            raise
     return Response({
         'purchase_url': payos_response.checkoutUrl
     })
