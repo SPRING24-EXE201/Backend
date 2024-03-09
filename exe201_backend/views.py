@@ -1,6 +1,7 @@
 import os
 
 from django.http import FileResponse, HttpResponse
+from payos.custom_error import PayOSError
 from rest_framework.decorators import api_view
 
 from exe201_backend.common.constants import SystemConstants
@@ -25,9 +26,9 @@ def get_json_file(request):
 @api_view(['GET'])
 def success_payment(request, payment_order_id):
     status = 400
-    # Get Payment Info
-    pay_os_info = SystemConstants.payos_client.getPaymentLinkInformation(payment_order_id)
     try:
+        # Get Payment Info
+        pay_os_info = SystemConstants.payos_client.getPaymentLinkInformation(payment_order_id)
         if pay_os_info and pay_os_info.status == 'PAID':
             order = Order.objects.get(payment_order_id=payment_order_id)
             if not order.status:
@@ -41,6 +42,8 @@ def success_payment(request, payment_order_id):
                                         user.id)
                 status = 200
     except Order.DoesNotExist:
+        pass
+    except PayOSError as e:
         pass
     if status == 200:
         # If payment is successful, render the pay_success.html template
